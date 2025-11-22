@@ -1,0 +1,70 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+.eggs/
+*.egg-info/
+*.egg
+
+# Virtual environments (not in repo)
+venv/
+.venv/
+ENV/
+env/
+
+# Pipenv virtualenv lives outside project, keep Pipfile & lock
+# Do not ignore Pipfile.lock (deterministic builds)
+
+# Django specific
+*.log
+local_settings.py
+media/
+staticfiles/
+# SQLite dev database
+/db.sqlite3
+
+# Environment & secrets
+.env
+.env.*
+*.env
+!.env.example
+
+# Coverage / test reports
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# IDE/editor
+.vscode/
+*.code-workspace
+
+# MyPy / type checking
+.mypy_cache/
+.dmypy.json
+
+# Ruff / lint cache
+.ruff_cache/
+
+# Cache
+__pypackages__/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Node (if added later for frontend assets)
+node_modules/
+
+# Docker artifacts
+*.tar
+
+# Temporary files
+*.swp
+*.swo
