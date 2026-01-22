@@ -28,6 +28,7 @@ SECRET_KEY = 'django-insecure-!bhln(x-57_6s&9p376rnq0n=a9dm=e)485cla*#9%y11ynqyz
 DEBUG = True
 
 ALLOWED_HOSTS = []
+AUTH_USER_MODEL = 'StorePages.Profile'
 
 
 # Application definition
@@ -80,26 +81,17 @@ WSGI_APPLICATION = 'BackendNFC.wsgi.application'
 
 import os
 
-USE_RDS = os.getenv('USE_RDS', '0') == '1'
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('PGDATABASE', 'noliktavadb'),
+        'USER': os.getenv('PGUSER', 'postgres'),
+        'PASSWORD': os.getenv('PGPASSWORD', ''),
+        'HOST': os.getenv('PGHOST', 'noliktavadb.cn8simkg8ud9.eu-north-1.rds.amazonaws.com'),
+        'PORT': os.getenv('PGPORT', '5432'),
+    }
+}
 
-if USE_RDS:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('PGDATABASE', 'noliktavaDB'),
-            'USER': os.getenv('PGUSER', 'postgres'),
-            'PASSWORD': os.getenv('PGPASSWORD', ''),
-            'HOST': os.getenv('PGHOST', 'noliktavadb.cn8simkg8ud9.eu-north-1.rds.amazonaws.com'),
-            'PORT': os.getenv('PGPORT', '5432'),
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
 
 
 # Password validation
@@ -137,8 +129,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Django REST Framework / JWT
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+

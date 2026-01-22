@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NFC Store</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/store.css' %}">
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <a class="brand" href="/">NFC Store</a>
+      <div class="actions" id="navActions"></div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="panel">
+      <h1>Welcome to the store</h1>
+      <p>Browse items and manage your profile. Login to see your account in the top-right corner.</p>
+      <div id="userStatus" class="muted">Checking session…</div>
+    </div>
+    <div class="panel">
+      <div class="badge">Demo</div>
+      <p style="margin-top:10px">This page uses JWT from /api/auth/token stored in localStorage, then calls /api/auth/me to populate the profile pill.</p>
+      <p class="muted">Use the Login/Register buttons if you see them.</p>
+    </div>
+  </section>
+
+  <section class="hero" style="margin-top:0">
+    <div class="grid">
+      <div class="card">
+        <h3>Starter pack</h3>
+        <p>Placeholder item. Replace with your catalog.</p>
+      </div>
+      <div class="card">
+        <h3>Adhesive tags</h3>
+        <p>Another placeholder item to make it feel store-like.</p>
+      </div>
+      <div class="card">
+        <h3>Readers</h3>
+        <p>Premium reader hardware demo tile.</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const TOKEN_KEY = 'jwt_access';
+    const navActions = document.getElementById('navActions');
+    const userStatus = document.getElementById('userStatus');
+
+    function setTokens(access, refresh) {
+      if (access) localStorage.setItem(TOKEN_KEY, access);
+      if (refresh) localStorage.setItem('jwt_refresh', refresh);
+    }
+    function clearTokens() {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem('jwt_refresh');
+    }
+
+    async function fetchMe() {
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (!token) return null;
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) return res.json();
+      clearTokens();
+      return null;
+    }
+
+    function renderLoggedOut() {
+      navActions.innerHTML = `
+        <a class="pill" href="/login">Login</a>
+        <a class="pill primary" href="/register">Register</a>
+      `;
+      userStatus.textContent = 'Guest session. Please login to see your profile.';
+    }
+
+    function renderLoggedIn(user) {
+      const adminLink = user?.is_staff ? `<a class="pill" href="/dashboard">Admin</a>` : '';
+      navActions.innerHTML = `
+        ${adminLink}
+        <span class="pill">${user?.name || user?.email || 'Profile'}</span>
+        <button class="pill" style="background:#fff" id="logoutBtn">Logout</button>
+      `;
+      userStatus.textContent = `Signed in as ${user?.name || user?.email}`;
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        clearTokens();
+        renderLoggedOut();
+      });
+    }
+
+    async function init() {
+      const me = await fetchMe();
+      if (me) {
+        renderLoggedIn(me);
+      } else {
+        renderLoggedOut();
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
