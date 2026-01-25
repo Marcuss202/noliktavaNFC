@@ -1,35 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AuthProvider, useAuth } from './AuthContext';
+import { Navbar } from './components/Navbar';
+import { Store } from './pages/Store';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
+import { Dashboard } from './pages/Dashboard';
+import { AdminSales } from './pages/AdminSales';
+import { AdminPurchases } from './pages/AdminPurchases';
+import { AdminInventory } from './pages/AdminInventory';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Protected route wrapper
+const ProtectedRoute = ({ children, adminOnly }) => {
+  const { user, loading } = useAuth();
+  
+  if (loading) return <div>Loading...</div>;
+  if (!user) return <Navigate to="/login" />;
+  if (adminOnly && !user.is_staff) return <Navigate to="/" />;
+  
+  return children;
+};
+
+function AppContent() {
+  const location = useLocation();
+  const hideNavbar = location.pathname.startsWith('/admin');
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      {!hideNavbar && <Navbar />}
+      <Routes>
+        <Route path="/" element={<Store />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/adminDashboard" element={<ProtectedRoute adminOnly><Dashboard /></ProtectedRoute>} />
+        <Route path="/adminSales" element={<ProtectedRoute adminOnly><AdminSales /></ProtectedRoute>} />
+        <Route path="/adminPurchases" element={<ProtectedRoute adminOnly><AdminPurchases /></ProtectedRoute>} />
+        <Route path="/adminInventory" element={<ProtectedRoute adminOnly><AdminInventory /></ProtectedRoute>} />
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
+  );
+}
+
+export default App;
