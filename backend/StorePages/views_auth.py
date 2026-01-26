@@ -48,16 +48,16 @@ class LoginView(APIView):
                 key='jwt_access',
                 value=str(refresh.access_token),
                 httponly=True,
-                secure=True,  # Required for SameSite=None
-                samesite='None',  # Allow cross-context (NFC Custom Tabs)
+                secure=False,  # Set to False for local HTTP development
+                samesite='Lax',  # Changed to Lax for local development
                 max_age=3600 * 24 * 7  # 7 days
             )
             response.set_cookie(
                 key='jwt_refresh',
                 value=str(refresh),
                 httponly=True,
-                secure=True,
-                samesite='None',
+                secure=False,  # Set to False for local HTTP development
+                samesite='Lax',  # Changed to Lax for local development
                 max_age=3600 * 24 * 30  # 30 days
             )
             return response
