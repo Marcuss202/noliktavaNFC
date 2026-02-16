@@ -154,8 +154,15 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Session cookie settings for cross-context support
 SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False  # Set to False for local development (HTTP)
 CSRF_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['https://*.ngrok.io', 'https://*.ngrok-free.app']
+CSRF_COOKIE_SECURE = False  # Set to False for local development (HTTP)
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.ngrok.io', 
+    'https://*.ngrok-free.app',
+    'http://192.168.8.206:8001',
+    'http://localhost:8001',
+    'http://192.168.8.206:5173',  # Vite dev server
+    'http://localhost:5173',
+]
 
