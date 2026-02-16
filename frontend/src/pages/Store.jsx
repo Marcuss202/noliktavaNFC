@@ -1,8 +1,36 @@
+import { useEffect, useState } from 'react';
 import { useAuth } from '../AuthContext';
+import { fetchWithAuth, fetchPublic } from '../api';
 import './Store.css';
 
 export const Store = () => {
   const { user } = useAuth();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        // Try authenticated fetch (works for logged-in users)
+        let res = await fetchWithAuth('/api/products/');
+        if (!res.ok) {
+          // fallback to public fetch for guests
+          res = await fetchPublic('/api/products/');
+        }
+        if (res.ok) {
+          const data = await res.json();
+          setProducts(data);
+        } else {
+          console.error('Failed to load products, status:', res.status);
+        }
+      } catch (error) {
+        console.error('Failed to load products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, []);
 
   return (
     <div className="store-page">
@@ -23,20 +51,21 @@ export const Store = () => {
       </section>
 
       <section className="products">
-        <div className="product-grid">
-          <div className="card">
-            <h3>Starter pack</h3>
-            <p>Placeholder item. Replace with your catalog.</p>
+        {loading ? (
+          <p>Loading products...</p>
+        ) : products.length === 0 ? (
+          <p>No products available. Admin can add them via the dashboard.</p>
+        ) : (
+          <div className="product-grid">
+            {products.map((product) => (
+              <a key={product.id} href={`/item/${product.nfc_tag_id}`} className="card">
+                <h3>{product.name}</h3>
+                <p>${product.price}</p>
+                <p className="stock">Stock: {product.stock_quantity}</p>
+              </a>
+            ))}
           </div>
-          <div className="card">
-            <h3>Adhesive tags</h3>
-            <p>Another placeholder item to make it feel store-like.</p>
-          </div>
-          <div className="card">
-            <h3>Readers</h3>
-            <p>Premium reader hardware demo tile.</p>
-          </div>
-        </div>
+        )}
       </section>
     </div>
   );

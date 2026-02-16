@@ -66,6 +66,14 @@
   border-radius: 14px;
   padding: 14px 16px;
   box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.1);
 }
 
 .card h3 {
@@ -77,4 +85,10 @@
   margin: 0;
   color: #475569;
   font-size: 14px;
+}
+
+.card .stock {
+  margin-top: 8px;
+  color: #94a3b8;
+  font-size: 12px;
 }

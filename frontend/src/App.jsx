@@ -2,12 +2,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { AuthProvider, useAuth } from './AuthContext';
 import { Navbar } from './components/Navbar';
 import { Store } from './pages/Store';
+import { ItemDetail } from './pages/ItemDetail';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
 import { AdminSales } from './pages/AdminSales';
 import { AdminPurchases } from './pages/AdminPurchases';
 import { AdminInventory } from './pages/AdminInventory';
+import { AdminProductEdit } from './pages/AdminProductEdit';
 import './App.css';
 
 // Protected route wrapper
@@ -30,12 +32,14 @@ function AppContent() {
       {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Store />} />
+        <Route path="/item/:nfc_tag_id" element={<ItemDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/adminDashboard" element={<ProtectedRoute adminOnly><Dashboard /></ProtectedRoute>} />
         <Route path="/adminSales" element={<ProtectedRoute adminOnly><AdminSales /></ProtectedRoute>} />
         <Route path="/adminPurchases" element={<ProtectedRoute adminOnly><AdminPurchases /></ProtectedRoute>} />
         <Route path="/adminInventory" element={<ProtectedRoute adminOnly><AdminInventory /></ProtectedRoute>} />
+        <Route path="/adminInventory/:id" element={<ProtectedRoute adminOnly><AdminProductEdit /></ProtectedRoute>} />
       </Routes>
     </>
   );
