@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
-import { AdminPanel } from '../components/adminPanel';
-import './Dashboard.css';
+import { useAuth } from '../../AuthContext';
+import { AdminPanel } from '../../components/adminPanel';
+import '../css/Dashboard.css';
 
 export const Dashboard = () => {
   const { user } = useAuth();

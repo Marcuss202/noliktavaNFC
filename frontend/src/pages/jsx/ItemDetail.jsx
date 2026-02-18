@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useAuth } from '../AuthContext';
-import { fetchWithAuth, fetchPublic } from '../api';
-import './ItemDetail.css';
+import { useAuth } from '../../AuthContext';
+import { fetchWithAuth, fetchPublic } from '../../api';
+import '../css/ItemDetail.css';
 
 export const ItemDetail = () => {
   const { nfc_tag_id } = useParams();

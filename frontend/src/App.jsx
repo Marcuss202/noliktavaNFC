@@ -1,15 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
 import { Navbar } from './components/Navbar';
-import { Store } from './pages/Store';
-import { ItemDetail } from './pages/ItemDetail';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { Dashboard } from './pages/Dashboard';
-import { AdminSales } from './pages/AdminSales';
-import { AdminPurchases } from './pages/AdminPurchases';
-import { AdminInventory } from './pages/AdminInventory';
-import { AdminProductEdit } from './pages/AdminProductEdit';
+import { Store } from './pages/jsx/Store';
+import { ItemDetail } from './pages/jsx/ItemDetail';
+import { Login } from './pages/jsx/Login';
+import { Register } from './pages/jsx/Register';
+import { Dashboard } from './pages/jsx/Dashboard';
+import { AdminSales } from './pages/jsx/AdminSales';
+import { AdminPurchases } from './pages/jsx/AdminPurchases';
+import { AdminInventory } from './pages/jsx/AdminInventory';
+import { AdminProductEdit } from './pages/jsx/AdminProductEdit';
+import { NFCRedirect } from './pages/jsx/NFCRedirect';
 import './App.css';
 
 // Protected route wrapper
@@ -25,13 +26,14 @@ const ProtectedRoute = ({ children, adminOnly }) => {
 
 function AppContent() {
   const location = useLocation();
-  const hideNavbar = location.pathname.startsWith('/admin');
+  const hideNavbar = location.pathname.startsWith('/admin') || location.pathname.startsWith('/nfc');
 
   return (
     <>
       {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Store />} />
+        <Route path="/nfc/:nfc_tag_id" element={<NFCRedirect />} />
         <Route path="/item/:nfc_tag_id" element={<ItemDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

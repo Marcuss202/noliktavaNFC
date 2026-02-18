@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { AdminPanel } from '../components/adminPanel';
-import './AdminInventory.css';
+import { AdminPanel } from '../../components/adminPanel';
+import '../css/AdminInventory.css';
 
 export const AdminInventory = () => {
   const [products, setProducts] = useState([]);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../AuthContext';
-import { fetchWithAuth, fetchPublic } from '../api';
-import './Store.css';
+import { useAuth } from '../../AuthContext';
+import { fetchWithAuth, fetchPublic } from '../../api';
+import '../css/Store.css';
 
 export const Store = () => {
   const { user } = useAuth();

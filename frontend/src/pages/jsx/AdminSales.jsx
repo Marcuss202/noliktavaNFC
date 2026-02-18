@@ -1,4 +1,4 @@
-import { AdminPanel } from '../components/adminPanel';
+import { AdminPanel } from '../../components/adminPanel';
 
 export const AdminSales = () => {
   return (

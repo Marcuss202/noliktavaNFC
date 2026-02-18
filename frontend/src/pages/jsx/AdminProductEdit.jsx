@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { AdminPanel } from '../components/adminPanel';
-import './AdminProductEdit.css';
+import { AdminPanel } from '../../components/adminPanel';
+import '../css/AdminProductEdit.css';
 
 export const AdminProductEdit = () => {
   const { id } = useParams();
