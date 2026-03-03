@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { fetchWithAuth } from '../../api';
 import { AdminPanel } from '../../components/adminPanel';
 import '../css/AdminProductEdit.css';
 
@@ -26,10 +27,7 @@ export const AdminProductEdit = () => {
 
   const loadProduct = async () => {
     try {
-      const res = await fetch(`/api/products/${id}/`, {
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const res = await fetchWithAuth(`/api/products/${id}/`);
       if (res.ok) {
         const data = await res.json();
         setProduct(data);
@@ -84,9 +82,8 @@ export const AdminProductEdit = () => {
         form.append('image', formData.image);
       }
 
-      const res = await fetch(`/api/products/${id}/`, {
+      const res = await fetchWithAuth(`/api/products/${id}/`, {
         method: 'PATCH',
-        credentials: 'include',
         body: form,
       });
 
@@ -167,6 +164,7 @@ export const AdminProductEdit = () => {
                   step="0.01"
                   value={formData.price}
                   onChange={handleInputChange}
+                  onKeyDown={(e) => { if (['e','E','+','-'].includes(e.key)) e.preventDefault(); }}
                   required
                 />
               </div>

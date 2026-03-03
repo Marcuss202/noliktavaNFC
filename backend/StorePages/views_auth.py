@@ -41,6 +41,7 @@ class LoginView(APIView):
                 "email": user.email,
                 "name": getattr(user, "name", None),
                 "is_staff": user.is_staff,
+                "access": str(refresh.access_token),  # include token for header-based auth
             }, status=status.HTTP_200_OK)
             
             # Set tokens in httpOnly cookies for security
@@ -49,7 +50,7 @@ class LoginView(APIView):
                 value=str(refresh.access_token),
                 httponly=True,
                 secure=False,  # Set to False for local HTTP development
-                samesite='Lax',  # Changed to Lax for local development
+                samesite='None',  # must be None for cross-origin fetch/Development
                 max_age=3600 * 24 * 7  # 7 days
             )
             response.set_cookie(
@@ -57,7 +58,7 @@ class LoginView(APIView):
                 value=str(refresh),
                 httponly=True,
                 secure=False,  # Set to False for local HTTP development
-                samesite='Lax',  # Changed to Lax for local development
+                samesite='None',  # must be None for cross-origin fetch/Development
                 max_age=3600 * 24 * 30  # 30 days
             )
             return response

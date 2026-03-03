@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { fetchWithAuth } from '../../api';
 import { AdminPanel } from '../../components/adminPanel';
 import '../css/AdminInventory.css';
 
@@ -33,10 +35,7 @@ export const AdminInventory = () => {
 
   const loadProducts = async () => {
     try {
-      const res = await fetch('/api/products/', {
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const res = await fetchWithAuth('/api/products/');
       if (res.ok) {
         const data = await res.json();
         setProducts(data);
@@ -72,9 +71,8 @@ export const AdminInventory = () => {
       form.append('description', formData.description || '');
       if (imageFile) form.append('image', imageFile);
 
-      const res = await fetch('/api/products/', {
+      const res = await fetchWithAuth('/api/products/', {
         method: 'POST',
-        credentials: 'include',
         body: form,
       });
       if (res.ok) {
@@ -101,9 +99,8 @@ export const AdminInventory = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure?')) return;
     try {
-      const res = await fetch(`/api/products/${id}/`, {
+      const res = await fetchWithAuth(`/api/products/${id}/`, {
         method: 'DELETE',
-        credentials: 'include',
       });
       if (res.ok) {
         loadProducts();
@@ -153,6 +150,7 @@ export const AdminInventory = () => {
                   step="0.01"
                   value={formData.price}
                   onChange={handleInputChange}
+                  onKeyDown={(e) => { if (['e','E','+','-'].includes(e.key)) e.preventDefault(); }}
                   required
                 />
                 <input
@@ -216,7 +214,7 @@ export const AdminInventory = () => {
                     <td>${parseFloat(product.price).toFixed(2)}</td>
                     <td>{product.stock_quantity}</td>
                     <td className="actions-cell">
-                      <a href={`/adminInventory/${product.id}/`} className="link-edit">Admin Edit</a>
+                      <Link to={`/adminInventory/${product.id}/`} className="link-edit">Admin Edit</Link>
                       <button onClick={() => handleDelete(product.id)} className="btn-delete">
                         Delete
                       </button>
