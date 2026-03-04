@@ -48,7 +48,7 @@ export const ItemDetail = () => {
       <div className="item-detail-page">
         <div className="container">
           <div className="error-box">{error}</div>
-          <Link to="/" className="btn-back">Back to Store</Link>
+          <Link to="/#store-products" className="btn-back">Back to Store</Link>
         </div>
       </div>
     );
@@ -59,7 +59,7 @@ export const ItemDetail = () => {
       <div className="item-detail-page">
         <div className="container">
           <div className="error-box">Product not found</div>
-          <Link to="/" className="btn-back">Back to Store</Link>
+          <Link to="/#store-products" className="btn-back">Back to Store</Link>
         </div>
       </div>
     );
@@ -68,7 +68,6 @@ export const ItemDetail = () => {
   return (
     <div className="item-detail-page">
       <div className="container">
-        <Link to="/" className="btn-back">← Back to Store</Link>
 
         <div className="detail-card">
           <div className="view-mode">
@@ -96,6 +95,7 @@ export const ItemDetail = () => {
             </div>
           </div>
         </div>
+        <Link to="/#store-products" className="btn-back">← Back to Store</Link>
       </div>
     </div>
   );

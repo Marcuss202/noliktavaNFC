@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, NavLink } from 'react-router-dom';
+import { Link, Navigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import './adminPanel.css';
 
@@ -50,6 +50,7 @@ export const AdminPanel = ({ children }) => {
             onChange={handleSearch}
           />
           <div className="topBarUser">
+            <Link to="/" className="Store">Store</Link>
             <span>{user.name || user.email}</span>
             <button onClick={logout} className="pill">Logout</button>
           </div>

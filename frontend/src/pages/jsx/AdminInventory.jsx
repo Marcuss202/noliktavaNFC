@@ -150,7 +150,7 @@ export const AdminInventory = () => {
                   step="0.01"
                   value={formData.price}
                   onChange={handleInputChange}
-                  onKeyDown={(e) => { if (['e','E','+','-'].includes(e.key)) e.preventDefault(); }}
+                  onKeyDown={(e) => { if (['+','-'].includes(e.key)) e.preventDefault(); }}
                   required
                 />
                 <input

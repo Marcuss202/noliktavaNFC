@@ -71,6 +71,26 @@
   color: #fff;
 }
 
+.navbar.navbar-light .brand {
+  color: #0f172a;
+}
+
+.navbar.navbar-light .nav-actions .pill {
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.25);
+}
+
+.navbar.navbar-light .nav-actions .pill:hover {
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.45);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.navbar.navbar-light .nav-actions .pill.primary {
+  color: #fff;
+  border-color: transparent;
+}
+
 @media (max-width: 768px) {
   .nav-actions {
     gap: 8px;
