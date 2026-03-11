@@ -50,6 +50,24 @@
   gap: 6px;
 }
 
+.cart-pill {
+  position: relative;
+}
+
+.cart-badge {
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #e73c4e;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+}
+
 .pill:hover {
   transform: translateY(-2px);
   border-color: rgba(255, 255, 255, 0.9);
@@ -89,6 +107,163 @@
 .navbar.navbar-light .nav-actions .pill.primary {
   color: #fff;
   border-color: transparent;
+}
+
+.navbar.navbar-light .cart-badge {
+  color: #fff;
+}
+
+/* Cart icon button */
+.nav-icon-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.nav-icon-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.nav-icon-btn .cart-badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+}
+
+/* Solid navbar for non-home pages (cart, item detail, etc.) */
+.navbar.navbar-solid {
+  background: #0f172a;
+}
+
+/* Avatar wrapper + dropdown */
+.nav-avatar-wrap {
+  position: relative;
+}
+
+/* User avatar circle */
+.nav-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-avatar:hover,
+.nav-avatar.nav-avatar-open {
+  border-color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Dropdown menu */
+.nav-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 190px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+  z-index: 1100;
+  animation: dropdownFade 0.15s ease;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-user-info {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dropdown-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: #f8fafc;
+}
+
+.dropdown-logout {
+  color: #e73c4e;
+  border-top: 1px solid #f1f5f9;
+}
+
+.dropdown-logout:hover {
+  background: #fff5f5;
+}
+
+/* Light section overrides */
+.navbar.navbar-light .nav-icon-btn {
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.25);
+}
+
+.navbar.navbar-light .nav-icon-btn:hover {
+  border-color: rgba(15, 23, 42, 0.45);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.navbar.navbar-light .nav-avatar {
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.25);
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.navbar.navbar-light .nav-avatar:hover,
+.navbar.navbar-light .nav-avatar.nav-avatar-open {
+  border-color: rgba(15, 23, 42, 0.5);
+  background: rgba(15, 23, 42, 0.15);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {

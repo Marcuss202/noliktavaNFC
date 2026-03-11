@@ -3,7 +3,8 @@
 // forwards /api to the Django backend.  If you specify VITE_API_URL it
 // overrides this behaviour (e.g. production build).
 const ENV_API = import.meta.env.VITE_API_URL;
-export const API_BASE = ENV_API ? ENV_API.replace(/\/$/, '') : '';
+const DEV_FALLBACK_API = import.meta.env.DEV ? 'http://localhost:8000' : '';
+export const API_BASE = ENV_API ? ENV_API.replace(/\/$/, '') : DEV_FALLBACK_API;
 
 // Fetch with credentials (cookies)
 export const fetchWithAuth = (url, options = {}) => {
@@ -84,4 +85,33 @@ export const authAPI = {
     await fetchWithAuth('/api/auth/logout', { method: 'POST' });
     localStorage.removeItem('jwt_access');
   },
+};
+
+const buildReportQuery = (params = {}) => {
+  const searchParams = new URLSearchParams();
+  searchParams.set('range', params.range || '30d');
+
+  if (params.from) {
+    searchParams.set('from', params.from);
+  }
+  if (params.to) {
+    searchParams.set('to', params.to);
+  }
+
+  return `?${searchParams.toString()}`;
+};
+
+const fetchReport = async (path, params = {}) => {
+  const res = await fetchWithAuth(`${path}${buildReportQuery(params)}`);
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.detail || 'Failed to fetch report');
+  }
+  return res.json();
+};
+
+export const reportsAPI = {
+  dashboard: (params = {}) => fetchReport('/api/reports/dashboard', params),
+  sales: (params = {}) => fetchReport('/api/reports/sales', params),
+  purchases: (params = {}) => fetchReport('/api/reports/purchases', params),
 };

@@ -20,7 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from StorePages.views_auth import RegisterView, MeView, LoginView, LogoutView
-from StorePages.views_products import ProductViewSet
+from StorePages.views_products import ProductViewSet, CheckoutSaleView
+from StorePages.views_reports import DashboardReportView, SalesReportView, PurchasesReportView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -39,6 +40,10 @@ urlpatterns = [
     path('api/auth/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/me', MeView.as_view(), name='me'),
+    path('api/checkout', CheckoutSaleView.as_view(), name='checkout'),
+    path('api/reports/dashboard', DashboardReportView.as_view(), name='report_dashboard'),
+    path('api/reports/sales', SalesReportView.as_view(), name='report_sales'),
+    path('api/reports/purchases', PurchasesReportView.as_view(), name='report_purchases'),
     # Product routes (via router)
     path('api/', include(router.urls)),
 ]

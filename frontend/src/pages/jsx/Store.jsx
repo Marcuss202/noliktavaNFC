@@ -92,6 +92,70 @@ export const Store = () => {
           </div>
         )}
       </section>
+
+      <section className="about-section" id="about">
+        <div className="section-inner">
+          <span className="about-label">Who we are</span>
+          <h2>Built for <span>modern</span> shopping</h2>
+          <div className="about-body">
+            <div className="about-text">
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+              <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+            <div className="about-stats">
+              <div className="about-stat-card">
+                <strong>10k+</strong>
+                <span>Happy customers worldwide</span>
+              </div>
+              <div className="about-stat-card">
+                <strong>500+</strong>
+                <span>Products available in store</span>
+              </div>
+              <div className="about-stat-card">
+                <strong>99.9%</strong>
+                <span>Uptime &amp; reliability</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="contact-section" id="contact">
+        <div className="section-inner">
+          <span className="contact-label">Get in touch</span>
+          <h2>Contact Us</h2>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+          <div className="contact-grid">
+            <div className="contact-item">
+              <div className="contact-item-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              <strong>Email</strong>
+              <span>hello@fakeshop.com</span>
+            </div>
+            <div className="contact-item">
+              <div className="contact-item-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.64A2 2 0 012.18 1h3a2 2 0 012 1.72c.13.96.36 1.9.71 2.81a2 2 0 01-.45 2.11L6.91 8.09a16 16 0 006 6l.45-.45a2 2 0 012.11-.45c.91.35 1.85.58 2.81.71A2 2 0 0122 16.92z"/>
+                </svg>
+              </div>
+              <strong>Phone</strong>
+              <span>+1 (555) 123-4567</span>
+            </div>
+            <div className="contact-item">
+              <div className="contact-item-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+              </div>
+              <strong>Address</strong>
+              <span>123 Lorem Street, Ipsum City</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

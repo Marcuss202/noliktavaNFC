@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Product
+from .models import Profile, Product, Sale, SaleItem, Purchase, PurchaseItem
 
 
 @admin.register(Profile)
@@ -14,3 +14,31 @@ class ProductAdmin(admin.ModelAdmin):
 	search_fields = ("name", "nfc_tag_id", "description")
 	list_filter = ("created_at",)
 	ordering = ("-created_at",)
+
+
+class SaleItemInline(admin.TabularInline):
+	model = SaleItem
+	extra = 1
+
+
+@admin.register(Sale)
+class SaleAdmin(admin.ModelAdmin):
+	list_display = ("id", "note", "created_at")
+	search_fields = ("note",)
+	list_filter = ("created_at",)
+	ordering = ("-created_at",)
+	inlines = [SaleItemInline]
+
+
+class PurchaseItemInline(admin.TabularInline):
+	model = PurchaseItem
+	extra = 1
+
+
+@admin.register(Purchase)
+class PurchaseAdmin(admin.ModelAdmin):
+	list_display = ("id", "supplier_name", "note", "created_at")
+	search_fields = ("supplier_name", "note")
+	list_filter = ("created_at",)
+	ordering = ("-created_at",)
+	inlines = [PurchaseItemInline]

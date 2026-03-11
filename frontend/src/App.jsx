@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
+import { CartProvider } from './CartContext';
 import { Navbar } from './components/Navbar';
 import { Store } from './pages/jsx/Store';
 import { ItemDetail } from './pages/jsx/ItemDetail';
+import { Cart } from './pages/jsx/Cart';
 import { Login } from './pages/jsx/Login';
 import { Register } from './pages/jsx/Register';
 import { Dashboard } from './pages/jsx/Dashboard';
@@ -33,6 +35,7 @@ function AppContent() {
       {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Store />} />
+        <Route path="/cart" element={<Cart />} />
         <Route path="/nfc/:nfc_tag_id" element={<NFCRedirect />} />
         <Route path="/item/:nfc_tag_id" element={<ItemDetail />} />
         <Route path="/login" element={<Login />} />
@@ -51,7 +54,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <CartProvider>
+          <AppContent />
+        </CartProvider>
       </AuthProvider>
     </Router>
   );

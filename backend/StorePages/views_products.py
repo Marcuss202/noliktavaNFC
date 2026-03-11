@@ -4,9 +4,11 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.views import APIView
+from django.db import transaction
 
-from .models import Product
-from .serializers import ProductSerializer, ProductMinimalSerializer
+from .models import Product, Sale, SaleItem
+from .serializers import ProductSerializer, ProductMinimalSerializer, SaleSerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -108,3 +110,96 @@ class ProductViewSet(viewsets.ModelViewSet):
         product.save()
         serializer = self.get_serializer(product)
         return Response(serializer.data)
+
+
+class CheckoutSaleView(APIView):
+    """
+    Create a sale from cart items and decrease stock.
+    POST /api/checkout
+    Body: {"items": [{"product_id": 1, "quantity": 2}], "note": "optional"}
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        items = request.data.get('items', [])
+        note = (request.data.get('note') or '').strip()
+
+        if not isinstance(items, list) or len(items) == 0:
+            return Response(
+                {'error': 'Cart is empty or invalid'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        normalized_items = {}
+        for raw in items:
+            try:
+                product_id = int(raw.get('product_id'))
+                quantity = int(raw.get('quantity'))
+            except (TypeError, ValueError):
+                return Response(
+                    {'error': 'Each item must include numeric product_id and quantity'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if quantity <= 0:
+                return Response(
+                    {'error': 'Quantity must be greater than zero'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            normalized_items[product_id] = normalized_items.get(product_id, 0) + quantity
+
+        compact_items = [
+            {'product_id': product_id, 'quantity': quantity}
+            for product_id, quantity in normalized_items.items()
+        ]
+        product_ids = [item['product_id'] for item in compact_items]
+
+        with transaction.atomic():
+            products = (
+                Product.objects.select_for_update()
+                .filter(id__in=product_ids)
+            )
+            products_by_id = {product.id: product for product in products}
+
+            missing_ids = [pid for pid in product_ids if pid not in products_by_id]
+            if missing_ids:
+                return Response(
+                    {'error': f'Products not found: {missing_ids}'},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            sale = Sale.objects.create(note=note)
+            sale_items = []
+
+            for item in compact_items:
+                product = products_by_id[item['product_id']]
+                quantity = item['quantity']
+
+                if product.stock_quantity < quantity:
+                    return Response(
+                        {
+                            'error': (
+                                f'Not enough stock for "{product.name}". '
+                                f'Available: {product.stock_quantity}, requested: {quantity}'
+                            )
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                product.stock_quantity -= quantity
+                product.save(update_fields=['stock_quantity'])
+
+                sale_items.append(
+                    SaleItem(
+                        sale=sale,
+                        product=product,
+                        quantity=quantity,
+                        unit_price=product.price,
+                    )
+                )
+
+            SaleItem.objects.bulk_create(sale_items)
+
+        payload = SaleSerializer(Sale.objects.prefetch_related('items').get(id=sale.id)).data
+        return Response(payload, status=status.HTTP_201_CREATED)

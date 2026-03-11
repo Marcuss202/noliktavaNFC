@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import Product
+from .models import Product, Sale, SaleItem, Purchase, PurchaseItem
 
 
 User = get_user_model()
@@ -46,3 +46,51 @@ class ProductMinimalSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'name', 'price', 'stock_quantity', 'nfc_tag_id', 'image']
         read_only_fields = ['id']
+
+
+class SaleItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    line_total = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SaleItem
+        fields = ['id', 'product', 'product_name', 'quantity', 'unit_price', 'line_total']
+
+    def get_line_total(self, obj):
+        return obj.line_total
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    items = SaleItemSerializer(many=True, read_only=True)
+    total_amount = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Sale
+        fields = ['id', 'note', 'created_at', 'total_amount', 'items']
+
+    def get_total_amount(self, obj):
+        return obj.total_amount
+
+
+class PurchaseItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    line_total = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PurchaseItem
+        fields = ['id', 'product', 'product_name', 'quantity', 'unit_cost', 'line_total']
+
+    def get_line_total(self, obj):
+        return obj.line_total
+
+
+class PurchaseSerializer(serializers.ModelSerializer):
+    items = PurchaseItemSerializer(many=True, read_only=True)
+    total_amount = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Purchase
+        fields = ['id', 'supplier_name', 'note', 'created_at', 'total_amount', 'items']
+
+    def get_total_amount(self, obj):
+        return obj.total_amount

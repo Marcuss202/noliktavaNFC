@@ -1,15 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import { useCart } from '../CartContext';
+import fakeShopLogo from '../assets/FakeShopLogo.png';
+import fakeShopLogoBlack from '../assets/FakeShopLogoBlack.png';
 import './Navbar.css';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
+  const { totalItems } = useCart();
   const { pathname } = useLocation();
   const [isLightSection, setIsLightSection] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const avatarWrapRef = useRef(null);
+
+  const isOnHome = pathname === '/';
+  const isDarkBgRoute = isOnHome || pathname.startsWith('/item/');
 
   useEffect(() => {
-    if (pathname !== '/') {
+    if (!isOnHome) {
       setIsLightSection(false);
       return;
     }
@@ -33,21 +42,65 @@ export const Navbar = () => {
       window.removeEventListener('scroll', updateNavbarContrast);
       window.removeEventListener('resize', updateNavbarContrast);
     };
-  }, [pathname]);
+  }, [isOnHome]);
+
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handleOutside = (e) => {
+      if (avatarWrapRef.current && !avatarWrapRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [dropdownOpen]);
+
+  const navClass = `navbar${!isDarkBgRoute ? ' navbar-solid' : isLightSection ? ' navbar-light' : ''}`;  
+  const logoSrc = isLightSection ? fakeShopLogoBlack : fakeShopLogo;
 
   return (
-    <header className={`navbar ${isLightSection ? 'navbar-light' : ''}`}>
+    <header className={navClass}>
       <div className="nav-container">
-        <Link to="/" className="brand">NFC Store</Link>
+        <Link to="/" className="brand">
+          <img style={{ height: '64px', width: 'auto' }} src={logoSrc} alt="NFC Store" />
+        </Link>
         <div className="nav-actions">
+          <Link to="/cart" className="nav-icon-btn" title="Cart">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="21" r="1"/>
+              <circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+            </svg>
+            {totalItems > 0 && <span className="cart-badge">{totalItems}</span>}
+          </Link>
           {user ? (
-            <>
-              {user.is_staff && (
-                <Link to="/adminDashboard" className="pill">Admin</Link>
+            <div className="nav-avatar-wrap" ref={avatarWrapRef}>
+              <button
+                className={`nav-avatar${dropdownOpen ? ' nav-avatar-open' : ''}`}
+                onClick={() => setDropdownOpen((o) => !o)}
+                title={user.name || user.email}
+              >
+                {(user.name || user.email || '?')[0].toUpperCase()}
+              </button>
+              {dropdownOpen && (
+                <div className="nav-dropdown">
+                  <div className="dropdown-user-info">
+                    <span className="dropdown-name">{user.name || user.email}</span>
+                  </div>
+                  {user.is_staff && (
+                    <Link to="/adminDashboard" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                      Admin Panel
+                    </Link>
+                  )}
+                  <button
+                    className="dropdown-item dropdown-logout"
+                    onClick={() => { logout(); setDropdownOpen(false); }}
+                  >
+                    Logout
+                  </button>
+                </div>
               )}
-              <span className="pill">{user.name || user.email}</span>
-              <button onClick={logout} className="pill">Logout</button>
-            </>
+            </div>
           ) : (
             <>
               <Link to="/login" className="pill">Login</Link>
