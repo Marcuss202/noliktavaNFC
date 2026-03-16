@@ -1,5 +1,7 @@
 .activity {
   width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .dashboard-header-row {
@@ -59,6 +61,7 @@
   border-radius: 12px;
   padding: 20px;
   text-align: left;
+  min-width: 0;
 }
 
 .accent-red {
@@ -105,6 +108,7 @@
   border: 1px solid #e8edf5;
   border-radius: 12px;
   padding: 18px 20px;
+  min-width: 0;
 }
 
 .chart-card h2,
@@ -187,11 +191,13 @@
   border-radius: 12px;
   padding: 18px 20px;
   margin-top: 2px;
+  min-width: 0;
 }
 
 .table-card table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .table-card thead th {
@@ -210,6 +216,11 @@
   border-bottom: 1px solid #f1f5fb;
   color: #1e293b;
   font-size: 14px;
+}
+
+.table-card th,
+.table-card td {
+  word-break: break-word;
 }
 
 .muted {

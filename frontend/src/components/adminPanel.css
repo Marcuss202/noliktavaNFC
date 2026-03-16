@@ -6,8 +6,11 @@
 
 .adminLayout {
     display: flex;
+    width: 100%;
+    max-width: 100%;
     min-height: 100vh;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: clip;
 }
 
 /* ── Sidebar ────────────────────────────────── */
@@ -148,12 +151,14 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 0;
     min-height: 100vh;
     background: #f4f6fb;
 }
 
 .contentArea {
     flex: 1;
+    min-width: 0;
     padding: 28px 32px;
 }
 
@@ -188,5 +193,82 @@
     font-size: 14px;
     background: #f8fafc;
     border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+    .adminLayout {
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .sidePanel {
+        width: 100%;
+        height: auto;
+        position: static;
+        padding: 12px;
+        gap: 12px;
+        overflow: visible;
+    }
+
+    .side-top {
+        gap: 12px;
+    }
+
+    .col {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .wrapper {
+        min-width: 0;
+    }
+
+    .side-bottom {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .side-divider,
+    .user-row {
+        grid-column: 1 / -1;
+    }
+
+    .user-row {
+        padding: 4px 2px;
+    }
+
+    .side-action {
+        min-width: 0;
+    }
+
+    .mainArea {
+        min-height: 0;
+    }
+
+    .contentArea {
+        padding: 18px 14px 22px;
+        overflow-x: hidden;
+    }
+}
+
+@media (max-width: 560px) {
+    .col {
+        grid-template-columns: 1fr;
+    }
+
+    .side-bottom {
+        grid-template-columns: 1fr;
+    }
+
+    .wrapper,
+    .side-action {
+        font-size: 13px;
+    }
+
+    .logo {
+        padding: 2px 4px 0;
+    }
 }
 
