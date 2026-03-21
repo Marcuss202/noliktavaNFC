@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { fetchWithAuth } from '../../api';
 import { AdminPanel } from '../../components/adminPanel';
+import '../css/AdminInventory.css';
 import '../css/AdminProductEdit.css';
 
 export const AdminProductEdit = () => {
@@ -108,26 +109,15 @@ export const AdminProductEdit = () => {
           <div className="edit-page-header">
             <span className="skeleton" style={{height: 28, width: 180, display: 'block', borderRadius: 8}} />
           </div>
-          <div className="edit-2col">
-            <div className="edit-left">
-              <div className="skeleton-card" style={{padding: 24}}>
-                {[1,2,3,4].map((i) => (
-                  <div key={i} style={{marginBottom: 20}}>
-                    <span className="skeleton" style={{height: 12, width: '35%', marginBottom: 8, display: 'block'}} />
-                    <span className="skeleton" style={{height: 40, display: 'block', borderRadius: 8}} />
-                  </div>
-                ))}
+          <div className="skeleton-card" style={{padding: 20}}>
+            <span className="skeleton" style={{height: 14, width: '35%', marginBottom: 16, display: 'block'}} />
+            <span className="skeleton" style={{height: 150, width: 150, borderRadius: 10, marginBottom: 20, display: 'block'}} />
+            {[1,2,3,4].map((i) => (
+              <div key={i} style={{marginBottom: 18}}>
                 <span className="skeleton" style={{height: 12, width: '35%', marginBottom: 8, display: 'block'}} />
-                <span className="skeleton" style={{height: 90, display: 'block', borderRadius: 8}} />
-              </div>
-            </div>
-            <div className="edit-right">
-              <div className="skeleton-card" style={{padding: 20}}>
-                <span className="skeleton" style={{height: 220, display: 'block', borderRadius: 10, marginBottom: 16}} />
-                <span className="skeleton" style={{height: 40, display: 'block', borderRadius: 8, marginBottom: 10}} />
                 <span className="skeleton" style={{height: 40, display: 'block', borderRadius: 8}} />
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </AdminPanel>
@@ -155,25 +145,22 @@ export const AdminProductEdit = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="edit-2col">
-          {/* Left: form fields */}
-          <div className="edit-left">
-            <div className="edit-card">
-              <h2 className="edit-section-title">Product Details</h2>
-
-              <div className="ef-group">
-                <label>Product Name *</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="ef-row">
-                <div className="ef-group">
+        <form onSubmit={handleSubmit} className="product-form">
+          <div className="product-form-inner">
+            <div className="form-fields">
+              <h3>Edit Product</h3>
+              <div className="form-grid-2">
+                <div className="form-group">
+                  <label>Product Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
                   <label>NFC Tag ID *</label>
                   <input
                     type="text"
@@ -183,7 +170,7 @@ export const AdminProductEdit = () => {
                     required
                   />
                 </div>
-                <div className="ef-group">
+                <div className="form-group">
                   <label>Price (€) *</label>
                   <input
                     type="number"
@@ -195,7 +182,7 @@ export const AdminProductEdit = () => {
                     required
                   />
                 </div>
-                <div className="ef-group">
+                <div className="form-group">
                   <label>Stock Quantity *</label>
                   <input
                     type="number"
@@ -206,8 +193,7 @@ export const AdminProductEdit = () => {
                   />
                 </div>
               </div>
-
-              <div className="ef-group">
+              <div className="form-group">
                 <label>Description</label>
                 <textarea
                   name="description"
@@ -216,14 +202,16 @@ export const AdminProductEdit = () => {
                   rows="5"
                 />
               </div>
+              <div className="edit-actions-inline">
+                <button type="submit" className="btn-submit" disabled={saving}>
+                  {saving ? 'Saving…' : 'Save Changes'}
+                </button>
+                <Link to="/adminInventory" className="btn-cancel-inline">Cancel</Link>
+              </div>
             </div>
-          </div>
 
-          {/* Right: sticky image + save panel */}
-          <div className="edit-right">
-            <div className="edit-side-card">
-              <h2 className="edit-section-title">Product Image</h2>
-
+            <div className="form-image-col">
+              <label className="form-img-label">Product Image</label>
               <input
                 type="file"
                 id="editImageInput"
@@ -232,36 +220,19 @@ export const AdminProductEdit = () => {
                 onChange={handleImageChange}
               />
               <div
-                className="edit-img-zone"
+                className="image-drop-zone"
                 onClick={() => document.getElementById('editImageInput').click()}
               >
                 {imagePreview ? (
                   <img src={imagePreview} alt="Preview" />
                 ) : (
-                  <div className="edit-img-placeholder">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#94a3b8" strokeWidth="1.5"/><path d="M3 16l5-5 4 4 3-3 6 6" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"/><circle cx="8.5" cy="8.5" r="1.5" fill="#94a3b8"/></svg>
+                  <div className="image-placeholder">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#94a3b8" strokeWidth="1.5"/><path d="M3 16l5-5 4 4 3-3 6 6" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"/><circle cx="8.5" cy="8.5" r="1.5" fill="#94a3b8"/></svg>
                     <span>Click to upload</span>
-                    <small>Leave empty to keep current</small>
                   </div>
                 )}
               </div>
-
-              {imagePreview && (
-                <button
-                  type="button"
-                  className="btn-change-img"
-                  onClick={() => document.getElementById('editImageInput').click()}
-                >
-                  Change Image
-                </button>
-              )}
-
-              <div className="edit-actions">
-                <button type="submit" className="btn-save" disabled={saving}>
-                  {saving ? 'Saving…' : 'Save Changes'}
-                </button>
-                <Link to="/adminInventory" className="btn-cancel">Cancel</Link>
-              </div>
+              <p className="edit-image-hint">Leave empty to keep current image.</p>
             </div>
           </div>
         </form>

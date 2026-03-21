@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { authAPI } from './api';
 
 const AuthContext = createContext(null);
@@ -12,9 +12,34 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const latestUserRef = useRef(null);
 
   useEffect(() => {
     checkAuth();
+  }, []);
+
+  useEffect(() => {
+    latestUserRef.current = user;
+    if (user) {
+      localStorage.setItem('auth_is_staff', user.is_staff ? '1' : '0');
+    } else {
+      localStorage.removeItem('auth_is_staff');
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      const wasAdmin = Boolean(latestUserRef.current?.is_staff) || localStorage.getItem('auth_is_staff') === '1';
+      setUser(null);
+      if (wasAdmin && window.location.pathname !== '/login') {
+        window.location.assign('/login');
+      }
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => {
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
   }, []);
 
   const checkAuth = async () => {

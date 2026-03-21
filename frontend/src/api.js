@@ -28,6 +28,13 @@ export const fetchWithAuth = (url, options = {}) => {
     ...options,
     credentials: 'include',
     headers,
+  }).then((res) => {
+    const authRoute = url.startsWith('/api/auth/login') || url.startsWith('/api/auth/register');
+    if (res.status === 401 && !authRoute) {
+      localStorage.removeItem('jwt_access');
+      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+    }
+    return res;
   });
 };
 

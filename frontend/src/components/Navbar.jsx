@@ -11,11 +11,14 @@ export const Navbar = () => {
   const { totalItems } = useCart();
   const { pathname } = useLocation();
   const [isLightSection, setIsLightSection] = useState(false);
+  const [isHiddenMobile, setIsHiddenMobile] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const avatarWrapRef = useRef(null);
+  const lastScrollYRef = useRef(0);
 
   const isOnHome = pathname === '/';
-  const isDarkBgRoute = isOnHome || pathname.startsWith('/item/');
+  const isAuthRoute = pathname === '/login' || pathname === '/register';
+  const isDarkBgRoute = isOnHome || pathname.startsWith('/item/') || isAuthRoute;
 
   useEffect(() => {
     if (!isOnHome) {
@@ -55,7 +58,35 @@ export const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleOutside);
   }, [dropdownOpen]);
 
-  const navClass = `navbar${!isDarkBgRoute ? ' navbar-solid' : isLightSection ? ' navbar-light' : ''}`;  
+  useEffect(() => {
+    const onScroll = () => {
+      if (window.innerWidth > 768) {
+        setIsHiddenMobile(false);
+        return;
+      }
+
+      const currentY = window.scrollY;
+      const delta = currentY - lastScrollYRef.current;
+
+      if (currentY <= 8 || delta < -6) {
+        setIsHiddenMobile(false);
+      } else if (delta > 8 && currentY > 40) {
+        setIsHiddenMobile(true);
+      }
+
+      lastScrollYRef.current = currentY;
+    };
+
+    lastScrollYRef.current = window.scrollY;
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+
+  const navClass = `navbar${!isDarkBgRoute ? ' navbar-solid' : isLightSection ? ' navbar-light' : ''}${isHiddenMobile ? ' navbar-hidden-mobile' : ''}`;
   const logoSrc = isLightSection ? fakeShopLogoBlack : fakeShopLogo;
 
   return (

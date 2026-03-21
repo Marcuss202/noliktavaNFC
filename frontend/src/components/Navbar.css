@@ -6,6 +6,7 @@
   z-index: 1000;
   padding: 16px 0;
   background: transparent;
+  transition: transform 0.22s ease;
 }
 
 .nav-container {
@@ -267,6 +268,22 @@
 }
 
 @media (max-width: 768px) {
+  .navbar {
+    padding: 10px 0;
+  }
+
+  .navbar.navbar-hidden-mobile {
+    transform: translateY(calc(-100% - 20px));
+  }
+
+  .nav-container {
+    margin: 0 14px;
+  }
+
+  .brand img {
+    height: 54px !important;
+  }
+
   .nav-actions {
     gap: 8px;
   }

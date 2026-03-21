@@ -371,48 +371,18 @@
   .product-form-inner {
     flex-direction: column;
   }
+
   .form-image-col {
+    order: -1;
     width: 100%;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
+
   .image-drop-zone {
     width: 140px;
     height: 140px;
     aspect-ratio: unset;
   }
-}
-
-  gap: 8px;
-}
-
-.link-edit {
-  padding: 6px 12px;
-  background: #e0f2fe;
-  color: #0369a1;
-  border-radius: 4px;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.link-edit:hover {
-  background: #bae6fd;
-}
-
-.btn-delete {
-  padding: 6px 12px;
-  background: #fee2e2;
-  color: #991b1b;
-  border: none;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-delete:hover {
-  background: #fecaca;
 }
