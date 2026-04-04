@@ -34,18 +34,28 @@ class RegisterSerializer(serializers.Serializer):
         return user
 
 class ProductSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
         fields = ['id', 'name', 'price', 'stock_quantity', 'nfc_tag_id', 'description', 'image', 'created_at']
         read_only_fields = ['id', 'created_at']
 
+    def get_image(self, obj):
+        return obj.image.url if obj.image else None
+
 
 class ProductMinimalSerializer(serializers.ModelSerializer):
     """Lightweight serializer for store list views"""
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
         fields = ['id', 'name', 'price', 'stock_quantity', 'nfc_tag_id', 'image']
         read_only_fields = ['id']
+
+    def get_image(self, obj):
+        return obj.image.url if obj.image else None
 
 
 class SaleItemSerializer(serializers.ModelSerializer):

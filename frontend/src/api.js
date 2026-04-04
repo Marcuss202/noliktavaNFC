@@ -3,8 +3,29 @@
 // forwards /api to the Django backend.  If you specify VITE_API_URL it
 // overrides this behaviour (e.g. production build).
 const ENV_API = import.meta.env.VITE_API_URL;
-const DEV_FALLBACK_API = import.meta.env.DEV ? 'http://localhost:8000' : '';
-export const API_BASE = ENV_API ? ENV_API.replace(/\/$/, '') : DEV_FALLBACK_API;
+const DEV_FALLBACK_API = import.meta.env.DEV ? '' : '';
+
+const sanitizeApiBase = (apiBase) => {
+  if (!apiBase) return apiBase;
+
+  try {
+    const url = new URL(apiBase);
+    const isLoopback = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+    const pageHost = window.location.hostname;
+    const pageIsLocal = pageHost === 'localhost' || pageHost === '127.0.0.1';
+
+    // Browsers block remote pages (e.g. Cloudflare tunnel) from calling loopback.
+    if (isLoopback && !pageIsLocal) {
+      return '';
+    }
+  } catch {
+    // If parse fails, keep value as-is.
+  }
+
+  return apiBase;
+};
+
+export const API_BASE = sanitizeApiBase(ENV_API ? ENV_API.replace(/\/$/, '') : DEV_FALLBACK_API);
 
 // Fetch with credentials (cookies)
 export const fetchWithAuth = (url, options = {}) => {

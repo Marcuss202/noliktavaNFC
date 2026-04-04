@@ -12,6 +12,16 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv
+import os
+
+
+def get_bool_env(var_name, default=False):
+    return os.getenv(var_name, str(default)).lower() in ("1", "true", "yes")
+
+
+def get_list_env(var_name, default=""):
+    value = os.getenv(var_name, default)
+    return [item.strip() for item in value.split(",") if item.strip()]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,13 +31,18 @@ load_dotenv(BASE_DIR.parent / '.env')  # Load environment variables from .env (p
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!bhln(x-57_6s&9p376rnq0n=a9dm=e)485cla*#9%y11ynqyz'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = get_bool_env("DJANGO_DEBUG", False)
 
-ALLOWED_HOSTS = ["*"]
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = "django-insecure-dev-only-change-me"
+    else:
+        raise ValueError("DJANGO_SECRET_KEY is required when DJANGO_DEBUG is False")
+
+ALLOWED_HOSTS = get_list_env("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
 AUTH_USER_MODEL = 'StorePages.Profile'
 
 
@@ -78,8 +93,6 @@ WSGI_APPLICATION = 'BackendNFC.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-import os
 
 DATABASES = {
     'default': {
@@ -149,20 +162,20 @@ REST_FRAMEWORK = {
 }
 
 # CORS settings for cross-origin requests
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = get_bool_env("CORS_ALLOW_ALL_ORIGINS", False)
+CORS_ALLOWED_ORIGINS = get_list_env(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173",
+)
 CORS_ALLOW_CREDENTIALS = True
 
 # Session cookie settings for cross-context support
 SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = False  # Set to False for local development (HTTP)
+SESSION_COOKIE_SECURE = get_bool_env("SESSION_COOKIE_SECURE", not DEBUG)
 CSRF_COOKIE_SAMESITE = 'None'
-CSRF_COOKIE_SECURE = False  # Set to False for local development (HTTP)
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.ngrok.io', 
-    'https://*.ngrok-free.app',
-    'http://192.168.8.206:8001',
-    'http://localhost:8001',
-    'http://192.168.8.206:5173',  # Vite dev server
-    'http://localhost:5173',
-]
+CSRF_COOKIE_SECURE = get_bool_env("CSRF_COOKIE_SECURE", not DEBUG)
+CSRF_TRUSTED_ORIGINS = get_list_env(
+    "CSRF_TRUSTED_ORIGINS",
+    "https://*.ngrok.io,https://*.ngrok-free.app,http://localhost:8001,http://127.0.0.1:8001,http://localhost:5173,http://127.0.0.1:5173",
+)
 
