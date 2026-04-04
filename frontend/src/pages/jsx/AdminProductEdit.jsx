@@ -21,6 +21,7 @@ export const AdminProductEdit = () => {
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     loadProduct();
@@ -72,6 +73,8 @@ export const AdminProductEdit = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
+    setSuccess('');
+    setError(null);
     try {
       const form = new FormData();
       form.append('name', formData.name);
@@ -89,8 +92,18 @@ export const AdminProductEdit = () => {
       });
 
       if (res.ok) {
-        alert('Product updated successfully');
-        navigate('/adminInventory');
+        const updated = await res.json();
+        setProduct(updated);
+        setFormData({
+          name: updated.name || '',
+          price: updated.price || '',
+          stock_quantity: updated.stock_quantity ?? '',
+          nfc_tag_id: updated.nfc_tag_id || '',
+          description: updated.description || '',
+          image: null,
+        });
+        setImagePreview(updated.image || null);
+        setSuccess('Saved successfully.');
       } else {
         const err = await res.json();
         setError('Failed to save: ' + JSON.stringify(err));
@@ -149,6 +162,8 @@ export const AdminProductEdit = () => {
           <div className="product-form-inner">
             <div className="form-fields">
               <h3>Edit Product</h3>
+              {success && <div className="success-box">{success}</div>}
+              {error && <div className="error-box">{error}</div>}
               <div className="form-grid-2">
                 <div className="form-group">
                   <label>Product Name *</label>

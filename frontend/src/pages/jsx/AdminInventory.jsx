@@ -19,6 +19,7 @@ export const AdminInventory = () => {
   const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [notice, setNotice] = useState({ type: '', text: '' });
 
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -48,6 +49,7 @@ export const AdminInventory = () => {
       }
     } catch (err) {
       console.error('Failed to load products:', err);
+      setNotice({ type: 'error', text: 'Failed to load products.' });
     } finally {
       setLoading(false);
     }
@@ -68,6 +70,7 @@ export const AdminInventory = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setNotice({ type: '', text: '' });
     try {
       const form = new FormData();
       form.append('name', formData.name);
@@ -94,27 +97,30 @@ export const AdminInventory = () => {
         if (fileInputRef.current) fileInputRef.current.value = '';
         setShowForm(false);
         loadProducts();
+        setNotice({ type: 'success', text: 'Product created successfully.' });
       } else {
-        alert('Failed to create product');
+        setNotice({ type: 'error', text: 'Failed to create product.' });
       }
     } catch (err) {
-      alert('Error: ' + err.message);
+      setNotice({ type: 'error', text: 'Error: ' + err.message });
     }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure?')) return;
+    setNotice({ type: '', text: '' });
     try {
       const res = await fetchWithAuth(`/api/products/${id}/`, {
         method: 'DELETE',
       });
       if (res.ok) {
         loadProducts();
+        setNotice({ type: 'success', text: 'Product deleted successfully.' });
       } else {
-        alert('Failed to delete product');
+        setNotice({ type: 'error', text: 'Failed to delete product.' });
       }
     } catch (err) {
-      alert('Error: ' + err.message);
+      setNotice({ type: 'error', text: 'Error: ' + err.message });
     }
   };
 
@@ -139,6 +145,12 @@ export const AdminInventory = () => {
             </button>
           </div>
         </div>
+
+        {notice.text && (
+          <div className={`inventory-notice ${notice.type === 'success' ? 'ok' : 'err'}`}>
+            {notice.text}
+          </div>
+        )}
 
         {showForm && (
           <form onSubmit={handleSubmit} className="product-form">

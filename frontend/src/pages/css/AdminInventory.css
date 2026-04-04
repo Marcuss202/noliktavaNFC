@@ -31,6 +31,27 @@
   flex-wrap: wrap;
 }
 
+.inventory-notice {
+  margin: -6px 0 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.inventory-notice.ok {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.inventory-notice.err {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
 .inv-search {
   border: 1px solid #dde3f0;
   border-radius: 8px;

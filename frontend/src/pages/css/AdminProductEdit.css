@@ -82,6 +82,17 @@
   font-size: 14px;
 }
 
+.success-box {
+  padding: 10px 12px;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  color: #166534;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 @media (max-width: 720px) {
   .edit-actions-inline {
     width: 100%;

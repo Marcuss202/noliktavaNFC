@@ -34,15 +34,17 @@ class RegisterSerializer(serializers.Serializer):
         return user
 
 class ProductSerializer(serializers.ModelSerializer):
-    image = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Product
         fields = ['id', 'name', 'price', 'stock_quantity', 'nfc_tag_id', 'description', 'image', 'created_at']
         read_only_fields = ['id', 'created_at']
 
-    def get_image(self, obj):
-        return obj.image.url if obj.image else None
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['image'] = instance.image.url if instance.image else None
+        return data
 
 
 class ProductMinimalSerializer(serializers.ModelSerializer):
