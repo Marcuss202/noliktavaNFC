@@ -43,8 +43,6 @@ Security is a core focus of this project.
 
 The server setup includes:
 - Multiple firewalls
-- Reverse proxies
-- Network filtering and access control
 - Hardened Docker containers
 
 Security practices are implemented based on dedicated cybersecurity training and best practices, with the goal of minimizing attack surface and preventing unauthorized access.
@@ -54,9 +52,8 @@ Security practices are implemented based on dedicated cybersecurity training and
 - NFC tags
 - Django (Backend API)
 - React (Frontend)
-- AWS RDS (Database)
+- PostgreSQL 
 - Docker & Docker Compose
-- Reverse proxy & firewall stack
 
 ## 📊 Why NFC Storage is Better Than Traditional Systems
 
@@ -85,7 +82,7 @@ Security practices are implemented based on dedicated cybersecurity training and
 This project was built to explore:
 - Real-world NFC applications
 - Secure self-hosted infrastructure
-- Cloud + home server hybrid systems
+- Home server hybrid systems
 - Practical cybersecurity implementation
 
 It combines software engineering, infrastructure, and security into a single real-world system.
