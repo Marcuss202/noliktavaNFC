@@ -124,7 +124,6 @@ export const Dashboard = () => {
     };
   }, [range]);
 
-  // Redirect if not logged in or not an admin
   if (!user || !user.is_staff) {
     return <Navigate to="/" replace />;
   }

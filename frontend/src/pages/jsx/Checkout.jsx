@@ -11,8 +11,6 @@ const fmtMoney = (value) => new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
 }).format(value || 0);
 
-// This isn't a real shipping page, so the address fields are fixed demo
-// dropdowns with 3 fake options each.
 const STREET_OPTIONS = ['Maple Avenue', 'Sunset Boulevard', 'Birch Lane'];
 const HOUSE_NUMBER_OPTIONS = ['12A', '47', '105'];
 const CITY_OPTIONS = ['Springfield', 'Rivertown', 'Lakeside'];
@@ -37,21 +35,12 @@ export const Checkout = () => {
   const [error, setError] = useState('');
   const [placedOrder, setPlacedOrder] = useState(null);
 
-  // Default the email to the logged-in account and load the list of accounts.
   useEffect(() => {
     if (user?.email) {
       setForm((prev) => ({ ...prev, email: prev.email || user.email }));
     }
   }, [user]);
 
-  useEffect(() => {
-    if (!user) return;
-    let active = true;
-    accountsAPI.emails().then((list) => {
-      if (active) setEmails(list);
-    });
-    return () => { active = false; };
-  }, [user]);
 
   const checkoutPayload = useMemo(
     () => items.map((item) => ({ product_id: item.product_id, quantity: item.quantity })),
@@ -95,7 +84,6 @@ export const Checkout = () => {
     return <div className="checkout-page"><div className="checkout-shell">Loading...</div></div>;
   }
 
-  // An order must be tied to a real account. Guests have to create one first.
   if (!user) {
     return (
       <div className="checkout-page">

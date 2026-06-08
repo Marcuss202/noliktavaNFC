@@ -25,10 +25,8 @@ export const Store = () => {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        // Try authenticated fetch (works for logged-in users)
         let res = await fetchWithAuth('/api/products/');
         if (!res.ok) {
-          // fallback to public fetch for guests
           res = await fetchPublic('/api/products/');
         }
         if (res.ok) {

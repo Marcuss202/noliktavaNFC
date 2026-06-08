@@ -12,14 +12,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='purchaseitem',
-            name='purchase',
-        ),
         migrations.AlterUniqueTogether(
             name='purchaseitem',
             unique_together=None,
         ),
+
+	migrations.RemoveField(
+	    model_name='purchaseitem',
+	    name='purchase',
+	),
+
         migrations.RemoveField(
             model_name='purchaseitem',
             name='product',

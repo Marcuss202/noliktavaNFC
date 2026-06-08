@@ -18,7 +18,6 @@ const STATUS_OPTIONS = [
   { value: 'cancelled', label: 'Cancelled' },
 ];
 
-// Columns that the backend can sort on.
 const SORTABLE_COLUMNS = [
   { key: 'created_at', label: 'Date' },
   { key: 'full_name', label: 'Customer' },
@@ -31,7 +30,6 @@ export const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  // Default: newest first.
   const [sortKey, setSortKey] = useState('created_at');
   const [sortDir, setSortDir] = useState('desc');
   const [savingId, setSavingId] = useState(null);

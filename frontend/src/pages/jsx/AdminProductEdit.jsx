@@ -165,8 +165,6 @@ export const AdminProductEdit = () => {
           <div className="product-form-inner">
             <div className="form-fields">
               <h3>Edit Product</h3>
-              {success && <div className="success-box">{success}</div>}
-              {error && <div className="error-box">{error}</div>}
               <div className="form-grid-2">
                 <div className="form-group">
                   <label>Product Name *</label>

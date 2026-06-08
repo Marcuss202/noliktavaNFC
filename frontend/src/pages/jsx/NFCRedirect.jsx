@@ -10,14 +10,12 @@ export const NFCRedirect = () => {
   useEffect(() => {
     if (loading) return;
     
-    // If admin, fetch the product to get the ID for edit page
     if (user && user.is_staff) {
       const getProductId = async () => {
         try {
           const res = await fetchWithAuth(`/api/products/lookup_nfc/?nfc_tag_id=${encodeURIComponent(nfc_tag_id)}`);
           if (res.ok) {
             const data = await res.json();
-            // Redirect to admin edit page
             window.location.href = `/adminInventory/${data.id}`;
           }
         } catch (err) {
@@ -28,7 +26,6 @@ export const NFCRedirect = () => {
     }
   }, [nfc_tag_id, user, loading]);
 
-  // If not admin or loading, redirect to store item detail
   if (!loading && (!user || !user.is_staff)) {
     return <Navigate to={`/item/${nfc_tag_id}`} replace />;
   }

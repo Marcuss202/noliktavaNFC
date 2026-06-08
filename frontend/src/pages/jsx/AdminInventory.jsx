@@ -34,7 +34,7 @@ export const AdminInventory = () => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
     setImageFile(file);
-    // Keep the file reference out of formData (we send FormData separately)
+    
     const reader = new FileReader();
     reader.onload = (event) => setImagePreview(event.target.result);
     reader.readAsDataURL(file);
