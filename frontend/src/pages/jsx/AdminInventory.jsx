@@ -20,6 +20,14 @@ export const AdminInventory = () => {
   const fileInputRef = useRef(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [notice, setNotice] = useState({ type: '', text: '' });
+  // NFC writing modal: { product, status: 'idle'|'writing'|'success'|'error', message }
+  const [nfcModal, setNfcModal] = useState(null);
+  const nfcAbortRef = useRef(null);
+
+  const nfcSupported = typeof window !== 'undefined' && 'NDEFReader' in window;
+
+  const nfcUrlFor = (product) =>
+    `${window.location.origin}/nfc/${product.nfc_tag_id}`;
 
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -128,6 +136,55 @@ export const AdminInventory = () => {
     } catch (err) {
       setNotice({ type: 'error', text: 'Error: ' + err.message });
       try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Error: ' + err.message } })); } catch(e){}
+    }
+  };
+
+  const openNfcModal = (product) => {
+    setNfcModal({ product, status: 'idle', message: '' });
+  };
+
+  const closeNfcModal = () => {
+    if (nfcAbortRef.current) {
+      nfcAbortRef.current.abort();
+      nfcAbortRef.current = null;
+    }
+    setNfcModal(null);
+  };
+
+  const writeNfc = async (product) => {
+    if (!nfcSupported) {
+      setNfcModal({
+        product,
+        status: 'error',
+        message: 'Web NFC is not supported on this device. Use Chrome on Android over HTTPS.',
+      });
+      return;
+    }
+    const url = nfcUrlFor(product);
+    const controller = new AbortController();
+    nfcAbortRef.current = controller;
+    setNfcModal({ product, status: 'writing', message: 'Tap an NFC tag against your phone to write it…' });
+    try {
+      const ndef = new window.NDEFReader();
+      await ndef.write(
+        { records: [{ recordType: 'url', data: url }] },
+        { signal: controller.signal },
+      );
+      nfcAbortRef.current = null;
+      setNfcModal({ product, status: 'success', message: `Tag written with ${url}` });
+      try {
+        window.dispatchEvent(new CustomEvent('show-toast', {
+          detail: { type: 'success', text: `NFC tag linked to ${product.name}.` },
+        }));
+      } catch { /* noop */ }
+    } catch (err) {
+      nfcAbortRef.current = null;
+      if (err && err.name === 'AbortError') return;
+      const text = (err && err.message) || 'Failed to write NFC tag.';
+      setNfcModal({ product, status: 'error', message: text });
+      try {
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text } }));
+      } catch { /* noop */ }
     }
   };
 
@@ -254,6 +311,7 @@ export const AdminInventory = () => {
                       <td><span className={`stock-badge ${stockClass}`}>{stock}</span></td>
                       <td className="actions-cell">
                         <Link to={`/adminInventory/${product.id}/`} className="link-edit">Edit</Link>
+                        <button onClick={() => openNfcModal(product)} className="btn-nfc">Add NFC</button>
                         <button onClick={() => handleDelete(product.id)} className="btn-delete">Delete</button>
                       </td>
                     </tr>
@@ -261,6 +319,56 @@ export const AdminInventory = () => {
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {nfcModal && (
+          <div className="nfc-overlay" onClick={closeNfcModal}>
+            <div className="nfc-modal" onClick={(e) => e.stopPropagation()}>
+              <button className="nfc-close" onClick={closeNfcModal} aria-label="Close">✕</button>
+              <h3>Link NFC tag</h3>
+              <p className="nfc-product">{nfcModal.product.name}</p>
+              <p className="nfc-url">{nfcUrlFor(nfcModal.product)}</p>
+
+              {!nfcSupported && nfcModal.status !== 'error' && (
+                <p className="nfc-warn">
+                  Web NFC is only available in Chrome on Android over HTTPS. Open this page on an
+                  Android phone to write tags.
+                </p>
+              )}
+
+              {nfcModal.status === 'writing' && (
+                <div className="nfc-status writing">
+                  <span className="nfc-spinner" />
+                  <span>{nfcModal.message}</span>
+                </div>
+              )}
+              {nfcModal.status === 'success' && (
+                <div className="nfc-status ok">{nfcModal.message}</div>
+              )}
+              {nfcModal.status === 'error' && (
+                <div className="nfc-status err">{nfcModal.message}</div>
+              )}
+
+              <div className="nfc-actions">
+                {nfcModal.status === 'success' ? (
+                  <button className="nfc-btn" onClick={closeNfcModal}>Done</button>
+                ) : nfcModal.status === 'writing' ? (
+                  <button className="nfc-secondary-btn" onClick={closeNfcModal}>Cancel</button>
+                ) : (
+                  <>
+                    <button
+                      className="nfc-btn"
+                      onClick={() => writeNfc(nfcModal.product)}
+                      disabled={!nfcSupported}
+                    >
+                      {nfcModal.status === 'error' ? 'Try again' : 'Scan & write tag'}
+                    </button>
+                    <button className="nfc-secondary-btn" onClick={closeNfcModal}>Close</button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
