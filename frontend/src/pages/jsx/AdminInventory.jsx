@@ -160,16 +160,25 @@ export const AdminInventory = () => {
       });
       return;
     }
+    if (!window.isSecureContext) {
+      setNfcModal({
+        product,
+        status: 'error',
+        message: 'NFC writing requires HTTPS. Open this page over https:// (or localhost) and try again.',
+      });
+      return;
+    }
     const url = nfcUrlFor(product);
     const controller = new AbortController();
     nfcAbortRef.current = controller;
-    setNfcModal({ product, status: 'writing', message: 'Tap an NFC tag against your phone to write it…' });
+    setNfcModal({
+      product,
+      status: 'writing',
+      message: 'Hold your phone against an NFC tag and keep it still…',
+    });
     try {
       const ndef = new window.NDEFReader();
-      await ndef.write(
-        { records: [{ recordType: 'url', data: url }] },
-        { signal: controller.signal },
-      );
+      await ndef.write(url, { signal: controller.signal, overwrite: true });
       nfcAbortRef.current = null;
       setNfcModal({ product, status: 'success', message: `Tag written with ${url}` });
       try {
@@ -180,10 +189,10 @@ export const AdminInventory = () => {
     } catch (err) {
       nfcAbortRef.current = null;
       if (err && err.name === 'AbortError') return;
-      const text = (err && err.message) || 'Failed to write NFC tag.';
-      setNfcModal({ product, status: 'error', message: text });
+      const detail = err ? `${err.name}: ${err.message}` : 'Unknown error';
+      setNfcModal({ product, status: 'error', message: detail });
       try {
-        window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text } }));
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: detail } }));
       } catch { /* noop */ }
     }
   };
@@ -334,6 +343,11 @@ export const AdminInventory = () => {
                 <p className="nfc-warn">
                   Web NFC is only available in Chrome on Android over HTTPS. Open this page on an
                   Android phone to write tags.
+                </p>
+              )}
+              {nfcSupported && !window.isSecureContext && nfcModal.status !== 'error' && (
+                <p className="nfc-warn">
+                  This page must be served over <b>HTTPS</b> (or localhost) for NFC writing to work.
                 </p>
               )}
 
