@@ -18,6 +18,8 @@
   gap: 24px;
   position: relative;
   overflow: hidden;
+  opacity: 0;
+  animation: hero-fade-in 900ms ease forwards;
 }
 
 .hero::before {
@@ -53,6 +55,10 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  opacity: 0;
+  transform: translateY(-12px);
+  animation: hero-title-in 700ms ease forwards;
+  animation-delay: 140ms;
 }
 
 .hero-scroll-btn {
@@ -62,6 +68,10 @@
   cursor: pointer;
   border-radius: 999px;
   transition: transform 0.4s ease, background-color 0.4s ease;
+  opacity: 0;
+  transform: translateY(-6px);
+  animation: hero-button-in 700ms ease forwards;
+  animation-delay: 260ms;
 }
 
 .hero-scroll-btn:hover {
@@ -76,6 +86,31 @@
 
 .hero-scroll-btn svg {
   display: block;
+}
+
+@keyframes hero-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes hero-title-in {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hero-button-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .hero h1,
+  .hero-scroll-btn {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* 

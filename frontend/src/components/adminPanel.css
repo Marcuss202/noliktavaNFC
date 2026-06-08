@@ -254,9 +254,6 @@
 }
 
 @media (max-width: 560px) {
-    .side-action-store {
-        display: none;
-    }
 
     .col {
         grid-template-columns: 1fr;

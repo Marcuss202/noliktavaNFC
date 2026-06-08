@@ -104,12 +104,15 @@ export const AdminProductEdit = () => {
         });
         setImagePreview(updated.image || null);
         setSuccess('Saved successfully.');
+        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', text: 'Saved successfully.' } })); } catch(e){}
       } else {
         const err = await res.json();
         setError('Failed to save: ' + JSON.stringify(err));
+        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Failed to save.' } })); } catch(e){}
       }
     } catch (err) {
       setError('Error saving product: ' + err.message);
+      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Error saving product: ' + err.message } })); } catch(e){}
     } finally {
       setSaving(false);
     }

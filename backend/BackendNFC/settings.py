@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 from dotenv import load_dotenv
 import os
 
@@ -159,6 +160,11 @@ REST_FRAMEWORK = {
         'StorePages.authentication.JWTCookieAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
 }
 
 # CORS settings for cross-origin requests

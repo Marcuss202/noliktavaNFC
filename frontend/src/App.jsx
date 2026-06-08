@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { AuthProvider, useAuth } from './AuthContext';
 import { CartProvider } from './CartContext';
 import { Navbar } from './components/Navbar';
+import Toast from './components/Toast';
 import { Store } from './pages/jsx/Store';
 import { ItemDetail } from './pages/jsx/ItemDetail';
 import { Cart } from './pages/jsx/Cart';
@@ -32,6 +33,7 @@ function AppContent() {
 
   return (
     <>
+      <Toast />
       {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<Store />} />

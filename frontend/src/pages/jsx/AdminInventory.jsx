@@ -50,6 +50,7 @@ export const AdminInventory = () => {
     } catch (err) {
       console.error('Failed to load products:', err);
       setNotice({ type: 'error', text: 'Failed to load products.' });
+      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Failed to load products.' } })); } catch(e){}
     } finally {
       setLoading(false);
     }
@@ -98,11 +99,14 @@ export const AdminInventory = () => {
         setShowForm(false);
         loadProducts();
         setNotice({ type: 'success', text: 'Product created successfully.' });
+        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', text: 'Product created successfully.' } })); } catch(e){}
       } else {
         setNotice({ type: 'error', text: 'Failed to create product.' });
+        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Failed to create product.' } })); } catch(e){}
       }
     } catch (err) {
       setNotice({ type: 'error', text: 'Error: ' + err.message });
+      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Error: ' + err.message } })); } catch(e){}
     }
   };
 
@@ -116,11 +120,14 @@ export const AdminInventory = () => {
       if (res.ok) {
         loadProducts();
         setNotice({ type: 'success', text: 'Product deleted successfully.' });
+        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', text: 'Product deleted successfully.' } })); } catch(e){}
       } else {
         setNotice({ type: 'error', text: 'Failed to delete product.' });
+        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Failed to delete product.' } })); } catch(e){}
       }
     } catch (err) {
       setNotice({ type: 'error', text: 'Error: ' + err.message });
+      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Error: ' + err.message } })); } catch(e){}
     }
   };
 

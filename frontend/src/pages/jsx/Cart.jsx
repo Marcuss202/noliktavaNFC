@@ -53,9 +53,13 @@ export const Cart = () => {
       }
 
       clearCart();
-      setCheckoutSuccess(`Order complete. Sale #${data.id} created successfully.`);
+      const successText = `Order complete. Sale #${data.id} created successfully.`;
+      setCheckoutSuccess(successText);
+      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', text: successText } })); } catch(e){}
     } catch (err) {
-      setCheckoutError(err.message || 'Checkout failed');
+      const errText = err.message || 'Checkout failed';
+      setCheckoutError(errText);
+      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: errText } })); } catch(e){}
     } finally {
       setCheckoutLoading(false);
     }

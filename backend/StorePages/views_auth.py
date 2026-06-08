@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from django.conf import settings
 
 from .serializers import RegisterSerializer
 from .authentication import JWTCookieAuthentication
@@ -36,6 +37,8 @@ class LoginView(APIView):
         user = authenticate(request, username=email, password=password)
         if user:
             refresh = RefreshToken.for_user(user)
+            access_max_age = int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
+            refresh_max_age = int(settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds())
             response = Response({
                 "id": user.id,
                 "email": user.email,
@@ -51,7 +54,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,  # Set to False for local HTTP development
                 samesite='None',  # must be None for cross-origin fetch/Development
-                max_age=3600 * 24 * 7  # 7 days
+                max_age=access_max_age
             )
             response.set_cookie(
                 key='jwt_refresh',
@@ -59,7 +62,7 @@ class LoginView(APIView):
                 httponly=True,
                 secure=False,  # Set to False for local HTTP development
                 samesite='None',  # must be None for cross-origin fetch/Development
-                max_age=3600 * 24 * 30  # 30 days
+                max_age=refresh_max_age
             )
             return response
         

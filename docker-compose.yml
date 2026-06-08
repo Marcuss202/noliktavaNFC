@@ -22,7 +22,9 @@ services:
       - ./backend:/app
     command: python manage.py runserver 0.0.0.0:8000
     depends_on:
-      - frontend
+      - db
+    networks:
+      - noliktava
 
   frontend:
     build:
@@ -37,9 +39,40 @@ services:
     environment:
       VITE_API_URL: ""
       DJANGO_DEBUG: ${DJANGO_DEBUG}
+    networks:
+      - noliktava
+
+  db:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - noliktava
 
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
     restart: unless-stopped
     command: tunnel --no-autoupdate run --token eyJhIjoiNzdkYjBjZDc0NDRmNDU4OGU2YmU5Y2FhZDQ0NGMwYjMiLCJ0IjoiZjU4MDNjNmMtZDVhMS00ZDQ1LWFhNDItODg4MzMzMmFkOWVjIiwicyI6Ik16VmxOelJrTmpBdFpETXlZeTAwWWpBMUxXSmpOVGN0TjJKbFpEYzRPR0UzWmpoaiJ9
+    networks:
+      - noliktava
+
+volumes:
+  postgres_data:
+
+networks:
+  noliktava:
+    driver: bridge
