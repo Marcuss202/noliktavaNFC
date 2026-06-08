@@ -141,5 +141,56 @@ const fetchReport = async (path, params = {}) => {
 export const reportsAPI = {
   dashboard: (params = {}) => fetchReport('/api/reports/dashboard', params),
   sales: (params = {}) => fetchReport('/api/reports/sales', params),
-  purchases: (params = {}) => fetchReport('/api/reports/purchases', params),
+  orders: (params = {}) => fetchReport('/api/reports/orders', params),
+};
+
+export const ordersAPI = {
+  // List all orders (staff), optionally sorted (e.g. sort='address' or '-created_at')
+  list: async (sort = '-created_at') => {
+    const query = sort ? `?sort=${encodeURIComponent(sort)}` : '';
+    const res = await fetchWithAuth(`/api/orders${query}`);
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.detail || error.error || 'Failed to load orders');
+    }
+    return res.json();
+  },
+
+  // Update an order's status (staff)
+  updateStatus: async (id, status) => {
+    const res = await fetchWithAuth(`/api/orders/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.detail || error.error || 'Failed to update order');
+    }
+    return res.json();
+  },
+};
+
+export const accountsAPI = {
+  // List existing account emails for the checkout email dropdown
+  emails: async () => {
+    const res = await fetchWithAuth('/api/accounts/emails');
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.emails || [];
+  },
+};
+
+// Place an order from cart items + shipping details
+export const checkoutAPI = {
+  placeOrder: async (payload) => {
+    const res = await fetchWithAuth('/api/checkout', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || data.detail || 'Checkout failed');
+    }
+    return data;
+  },
 };

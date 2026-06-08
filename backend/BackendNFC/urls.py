@@ -21,7 +21,8 @@ from django.views.static import serve
 from rest_framework.routers import DefaultRouter
 from StorePages.views_auth import RegisterView, MeView, LoginView, LogoutView
 from StorePages.views_products import ProductViewSet, CheckoutSaleView
-from StorePages.views_reports import DashboardReportView, SalesReportView, PurchasesReportView
+from StorePages.views_reports import DashboardReportView, SalesReportView, OrdersReportView
+from StorePages.views_orders import OrderListView, OrderDetailView, AccountEmailsView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -41,9 +42,12 @@ urlpatterns = [
     path('api/auth/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/me', MeView.as_view(), name='me'),
     path('api/checkout', CheckoutSaleView.as_view(), name='checkout'),
+    path('api/accounts/emails', AccountEmailsView.as_view(), name='account_emails'),
+    path('api/orders', OrderListView.as_view(), name='order_list'),
+    path('api/orders/<int:pk>', OrderDetailView.as_view(), name='order_detail'),
     path('api/reports/dashboard', DashboardReportView.as_view(), name='report_dashboard'),
     path('api/reports/sales', SalesReportView.as_view(), name='report_sales'),
-    path('api/reports/purchases', PurchasesReportView.as_view(), name='report_purchases'),
+    path('api/reports/orders', OrdersReportView.as_view(), name='report_orders'),
     # Product routes (via router)
     path('api/', include(router.urls)),
 ]

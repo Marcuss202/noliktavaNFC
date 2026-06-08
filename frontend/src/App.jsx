@@ -6,11 +6,12 @@ import Toast from './components/Toast';
 import { Store } from './pages/jsx/Store';
 import { ItemDetail } from './pages/jsx/ItemDetail';
 import { Cart } from './pages/jsx/Cart';
+import { Checkout } from './pages/jsx/Checkout';
 import { Login } from './pages/jsx/Login';
 import { Register } from './pages/jsx/Register';
 import { Dashboard } from './pages/jsx/Dashboard';
 import { AdminSales } from './pages/jsx/AdminSales';
-import { AdminPurchases } from './pages/jsx/AdminPurchases';
+import { AdminOrders } from './pages/jsx/AdminOrders';
 import { AdminInventory } from './pages/jsx/AdminInventory';
 import { AdminProductEdit } from './pages/jsx/AdminProductEdit';
 import { NFCRedirect } from './pages/jsx/NFCRedirect';
@@ -38,13 +39,14 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Store />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
         <Route path="/nfc/:nfc_tag_id" element={<NFCRedirect />} />
         <Route path="/item/:nfc_tag_id" element={<ItemDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/adminDashboard" element={<ProtectedRoute adminOnly><Dashboard /></ProtectedRoute>} />
         <Route path="/adminSales" element={<ProtectedRoute adminOnly><AdminSales /></ProtectedRoute>} />
-        <Route path="/adminPurchases" element={<ProtectedRoute adminOnly><AdminPurchases /></ProtectedRoute>} />
+        <Route path="/adminOrders" element={<ProtectedRoute adminOnly><AdminOrders /></ProtectedRoute>} />
         <Route path="/adminInventory" element={<ProtectedRoute adminOnly><AdminInventory /></ProtectedRoute>} />
         <Route path="/adminInventory/:id" element={<ProtectedRoute adminOnly><AdminProductEdit /></ProtectedRoute>} />
       </Routes>

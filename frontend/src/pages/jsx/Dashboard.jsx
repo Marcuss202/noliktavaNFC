@@ -178,16 +178,16 @@ export const Dashboard = () => {
                 <p className="stat-value">{fmtMoney(kpis.sales_total)}</p>
               </article>
               <article className="stat-card accent-blue">
-                <p className="stat-label">Purchases ({range})</p>
-                <p className="stat-value">{fmtMoney(kpis.purchases_total)}</p>
+                <p className="stat-label">Orders ({range})</p>
+                <p className="stat-value">{fmtNumber(kpis.orders_count)}</p>
               </article>
               <article className="stat-card accent-green">
                 <p className="stat-label">Low Inventory Items</p>
                 <p className="stat-value">{fmtNumber(kpis.low_stock_count)}</p>
               </article>
               <article className="stat-card accent-mix">
-                <p className="stat-label">Net Activity</p>
-                <p className="stat-value">{fmtMoney(kpis.net_activity)}</p>
+                <p className="stat-label">Pending Orders</p>
+                <p className="stat-value">{fmtNumber(kpis.pending_orders_count)}</p>
               </article>
             </section>
 
@@ -198,8 +198,8 @@ export const Dashboard = () => {
               </article>
 
               <article className="chart-card">
-                <h2>Purchases Trend</h2>
-                <AreaChart data={report?.purchases_trend || []} color="#0b75da" gradId="purchasesGrad" />
+                <h2>Orders Trend</h2>
+                <AreaChart data={report?.orders_trend || []} color="#0b75da" gradId="ordersGrad" />
               </article>
 
               <article className="chart-card inventory-health-card">

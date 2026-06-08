@@ -5,10 +5,14 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
+from django.contrib.auth import get_user_model
 from django.db import transaction
 
-from .models import Product, Sale, SaleItem
-from .serializers import ProductSerializer, ProductMinimalSerializer, SaleSerializer
+from .models import Product, Sale, SaleItem, Order, OrderItem
+from .serializers import ProductSerializer, ProductMinimalSerializer, OrderSerializer
+
+
+User = get_user_model()
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -114,15 +118,41 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 class CheckoutSaleView(APIView):
     """
-    Create a sale from cart items and decrease stock.
+    Create an order (and its underlying sale) from cart items and decrease stock.
     POST /api/checkout
-    Body: {"items": [{"product_id": 1, "quantity": 2}], "note": "optional"}
+    Body: {
+        "items": [{"product_id": 1, "quantity": 2}],
+        "email": "buyer@example.com",          # must belong to an existing account
+        "street": "...", "house_number": "...", "city": "...",
+        "postal_code": "...", "country": "...",
+        "note": "optional"
+    }
     """
     permission_classes = [AllowAny]
 
     def post(self, request):
         items = request.data.get('items', [])
         note = (request.data.get('note') or '').strip()
+        email = (request.data.get('email') or '').strip().lower()
+        street = (request.data.get('street') or '').strip()
+        house_number = (request.data.get('house_number') or '').strip()
+        city = (request.data.get('city') or '').strip()
+        postal_code = (request.data.get('postal_code') or '').strip()
+        country = (request.data.get('country') or '').strip()
+
+        if not email:
+            return Response(
+                {'error': 'An email is required to place an order.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # The order email must belong to an existing account.
+        customer = User.objects.filter(email__iexact=email).first()
+        if customer is None:
+            return Response(
+                {'error': 'No account exists for this email. Please create an account first.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if not isinstance(items, list) or len(items) == 0:
             return Response(
@@ -170,7 +200,22 @@ class CheckoutSaleView(APIView):
                 )
 
             sale = Sale.objects.create(note=note)
+            order = Order.objects.create(
+                customer=customer,
+                sale=sale,
+                email=customer.email,
+                full_name=customer.name or '',
+                phone=customer.phone or '',
+                street=street,
+                house_number=house_number,
+                city=city,
+                postal_code=postal_code,
+                country=country,
+                note=note,
+                status=Order.STATUS_PENDING,
+            )
             sale_items = []
+            order_items = []
 
             for item in compact_items:
                 product = products_by_id[item['product_id']]
@@ -198,8 +243,19 @@ class CheckoutSaleView(APIView):
                         unit_price=product.price,
                     )
                 )
+                order_items.append(
+                    OrderItem(
+                        order=order,
+                        product=product,
+                        quantity=quantity,
+                        unit_price=product.price,
+                    )
+                )
 
             SaleItem.objects.bulk_create(sale_items)
+            OrderItem.objects.bulk_create(order_items)
 
-        payload = SaleSerializer(Sale.objects.prefetch_related('items').get(id=sale.id)).data
+        payload = OrderSerializer(
+            Order.objects.prefetch_related('items').get(id=order.id)
+        ).data
         return Response(payload, status=status.HTTP_201_CREATED)

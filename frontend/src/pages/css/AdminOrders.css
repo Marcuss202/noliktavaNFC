@@ -1,0 +1,120 @@
+.orders-page {
+  width: 100%;
+}
+
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.orders-header h1 {
+  color: #0f172a;
+  font-size: 28px;
+}
+
+.orders-count {
+  color: #64748b;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.orders-status {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  color: #475569;
+}
+
+.orders-status.error {
+  border-color: #fda4af;
+  color: #b91c1c;
+}
+
+.orders-table-wrap {
+  background: #fff;
+  border: 1px solid #e8edf5;
+  border-radius: 12px;
+  padding: 8px 14px 14px;
+  overflow-x: auto;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 880px;
+}
+
+.orders-table thead th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 10px;
+  white-space: nowrap;
+}
+
+.orders-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.orders-table th.sortable:hover {
+  color: #0b75da;
+}
+
+.orders-table td {
+  border-bottom: 1px solid #eef2f7;
+  padding: 12px 10px;
+  color: #0f172a;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.orders-address {
+  max-width: 240px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-processing { background: #dbeafe; color: #1e40af; }
+.status-at_location { background: #ede9fe; color: #5b21b6; }
+.status-shipped { background: #cffafe; color: #155e75; }
+.status-completed { background: #dcfce7; color: #166534; }
+.status-cancelled { background: #fee2e2; color: #991b1b; }
+
+.status-select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.status-select:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (max-width: 640px) {
+  .orders-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

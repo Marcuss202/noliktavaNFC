@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { API_BASE, fetchWithAuth } from '../../api';
+import { Link, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../../api';
 import { useCart } from '../../CartContext';
 import '../css/Cart.css';
 
@@ -25,44 +24,11 @@ export const Cart = () => {
     clearCart,
     totalAmount,
   } = useCart();
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [checkoutError, setCheckoutError] = useState('');
-  const [checkoutSuccess, setCheckoutSuccess] = useState('');
+  const navigate = useNavigate();
 
-  const checkoutPayload = useMemo(
-    () => items.map((item) => ({ product_id: item.product_id, quantity: item.quantity })),
-    [items],
-  );
-
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (!items.length) return;
-
-    setCheckoutLoading(true);
-    setCheckoutError('');
-    setCheckoutSuccess('');
-
-    try {
-      const res = await fetchWithAuth('/api/checkout', {
-        method: 'POST',
-        body: JSON.stringify({ items: checkoutPayload }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || data.detail || 'Checkout failed');
-      }
-
-      clearCart();
-      const successText = `Order complete. Sale #${data.id} created successfully.`;
-      setCheckoutSuccess(successText);
-      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', text: successText } })); } catch(e){}
-    } catch (err) {
-      const errText = err.message || 'Checkout failed';
-      setCheckoutError(errText);
-      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: errText } })); } catch(e){}
-    } finally {
-      setCheckoutLoading(false);
-    }
+    navigate('/checkout');
   };
 
   return (
@@ -122,16 +88,12 @@ export const Cart = () => {
                 type="button"
                 className="checkout-btn"
                 onClick={handleCheckout}
-                disabled={checkoutLoading}
               >
-                {checkoutLoading ? 'Processing...' : 'Checkout'}
+                Buy / Checkout
               </button>
               <button type="button" className="clear-btn" onClick={clearCart}>
                 Clear Cart
               </button>
-
-              {checkoutError && <p className="checkout-error">{checkoutError}</p>}
-              {checkoutSuccess && <p className="checkout-success">{checkoutSuccess}</p>}
             </aside>
           </>
         )}

@@ -8,8 +8,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Product, Purchase, PurchaseItem, Sale, SaleItem
-from .serializers import PurchaseSerializer, SaleSerializer
+from django.db.models import Count
+
+from .models import Order, OrderItem, Product, Sale, SaleItem
+from .serializers import OrderSerializer, SaleSerializer
 
 
 def _parse_range_days(range_value: str) -> int:
@@ -55,12 +57,16 @@ class DashboardReportView(AdminStaffOnlyMixin):
         since = timezone.now() - timedelta(days=days)
 
         sales_items = SaleItem.objects.filter(sale__created_at__gte=since)
-        purchases_items = PurchaseItem.objects.filter(purchase__created_at__gte=since)
+        orders_items = OrderItem.objects.filter(order__created_at__gte=since)
+        orders_qs = Order.objects.filter(created_at__gte=since)
 
         sales_total = sales_items.aggregate(total=Sum(_money_expression('unit_price')))['total']
-        purchases_total = purchases_items.aggregate(total=Sum(_money_expression('unit_cost')))['total']
+        orders_total = orders_items.aggregate(total=Sum(_money_expression('unit_price')))['total']
         sales_count = sales_items.values('sale_id').distinct().count()
-        purchases_count = purchases_items.values('purchase_id').distinct().count()
+        orders_count = orders_qs.count()
+        pending_orders_count = orders_qs.exclude(
+            status__in=[Order.STATUS_COMPLETED, Order.STATUS_CANCELLED]
+        ).count()
         low_stock_qs = Product.objects.filter(stock_quantity__lte=10).order_by('stock_quantity', 'name')
 
         sales_series = (
@@ -70,11 +76,11 @@ class DashboardReportView(AdminStaffOnlyMixin):
             .annotate(total=Sum(_money_expression('unit_price')))
             .order_by('day')
         )
-        purchases_series = (
-            purchases_items
-            .annotate(day=TruncDate('purchase__created_at'))
+        orders_series = (
+            orders_items
+            .annotate(day=TruncDate('order__created_at'))
             .values('day')
-            .annotate(total=Sum(_money_expression('unit_cost')))
+            .annotate(total=Sum(_money_expression('unit_price')))
             .order_by('day')
         )
 
@@ -88,19 +94,19 @@ class DashboardReportView(AdminStaffOnlyMixin):
             'range': range_value,
             'kpis': {
                 'sales_total': _as_float(sales_total),
-                'purchases_total': _as_float(purchases_total),
+                'orders_total': _as_float(orders_total),
                 'sales_count': sales_count,
-                'purchases_count': purchases_count,
+                'orders_count': orders_count,
+                'pending_orders_count': pending_orders_count,
                 'low_stock_count': low_stock_qs.count(),
-                'net_activity': _as_float(sales_total) - _as_float(purchases_total),
             },
             'sales_trend': [
                 {'date': row['day'].isoformat(), 'amount': _as_float(row['total'])}
                 for row in sales_series
             ],
-            'purchases_trend': [
+            'orders_trend': [
                 {'date': row['day'].isoformat(), 'amount': _as_float(row['total'])}
-                for row in purchases_series
+                for row in orders_series
             ],
             'inventory_health': inventory_health,
             'low_stock_products': [
@@ -174,7 +180,7 @@ class SalesReportView(AdminStaffOnlyMixin):
         return Response(payload)
 
 
-class PurchasesReportView(AdminStaffOnlyMixin):
+class OrdersReportView(AdminStaffOnlyMixin):
     def get(self, request):
         denied = self._ensure_staff(request)
         if denied:
@@ -184,48 +190,52 @@ class PurchasesReportView(AdminStaffOnlyMixin):
         days = _parse_range_days(range_value)
         since = timezone.now() - timedelta(days=days)
 
-        purchases_qs = (
-            PurchaseItem.objects
-            .filter(purchase__created_at__gte=since)
-            .select_related('purchase', 'product')
-            .order_by('-purchase__created_at')
+        order_items_qs = (
+            OrderItem.objects
+            .filter(order__created_at__gte=since)
+            .select_related('order', 'product')
+            .order_by('-order__created_at')
         )
+        orders_qs = Order.objects.filter(created_at__gte=since)
 
-        purchases_total = purchases_qs.aggregate(total=Sum(_money_expression('unit_cost')))['total']
+        orders_total = order_items_qs.aggregate(total=Sum(_money_expression('unit_price')))['total']
         trend = (
-            purchases_qs
-            .annotate(day=TruncDate('purchase__created_at'))
+            order_items_qs
+            .annotate(day=TruncDate('order__created_at'))
             .values('day')
-            .annotate(total=Sum(_money_expression('unit_cost')))
+            .annotate(total=Sum(_money_expression('unit_price')))
             .order_by('day')
         )
 
-        top_restocked = (
-            purchases_qs
-            .values('product__name')
-            .annotate(total_quantity=Sum('quantity'))
-            .order_by('-total_quantity')[:5]
+        status_breakdown = (
+            orders_qs
+            .values('status')
+            .annotate(count=Count('id'))
+            .order_by('-count')
         )
-
-        purchase_ids = purchases_qs.values_list('purchase_id', flat=True).distinct()
+        status_labels = dict(Order.STATUS_CHOICES)
 
         payload = {
             'range': range_value,
             'summary': {
-                'total_purchases_amount': _as_float(purchases_total),
-                'purchase_count': purchase_ids.count(),
-                'items_received': purchases_qs.aggregate(total_qty=Sum('quantity'))['total_qty'] or 0,
+                'total_orders_amount': _as_float(orders_total),
+                'order_count': orders_qs.count(),
+                'items_ordered': order_items_qs.aggregate(total_qty=Sum('quantity'))['total_qty'] or 0,
             },
             'trend': [
                 {'date': row['day'].isoformat(), 'amount': _as_float(row['total'])}
                 for row in trend
             ],
-            'top_restocked_products': [
-                {'name': row['product__name'], 'quantity': row['total_quantity']}
-                for row in top_restocked
+            'status_breakdown': [
+                {
+                    'status': row['status'],
+                    'label': status_labels.get(row['status'], row['status']),
+                    'count': row['count'],
+                }
+                for row in status_breakdown
             ],
-            'recent_purchases': PurchaseSerializer(
-                Purchase.objects.filter(id__in=purchase_ids).order_by('-created_at')[:10],
+            'recent_orders': OrderSerializer(
+                orders_qs.prefetch_related('items', 'items__product').order_by('-created_at')[:10],
                 many=True,
             ).data,
         }
