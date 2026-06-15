@@ -27,7 +27,7 @@ export const AdminInventory = () => {
   const nfcSupported = typeof window !== 'undefined' && 'NDEFReader' in window;
 
   const nfcUrlFor = (product) =>
-    `${window.location.origin}/nfc/${product.nfc_tag_id}`;
+    `https://nfcstore.lat/nfc/${product.nfc_tag_id}`;
 
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -178,7 +178,17 @@ export const AdminInventory = () => {
     });
     try {
       const ndef = new window.NDEFReader();
-      await ndef.write(url, { signal: controller.signal, overwrite: true });
+      await ndef.write({
+        records: [
+          {
+            recordType: "url",
+            data: url,
+          },
+        ],
+      }, {
+        signal: controller.signal,
+        overwrite: true,
+      });
       nfcAbortRef.current = null;
       setNfcModal({ product, status: 'success', message: `Tag written with ${url}` });
       try {

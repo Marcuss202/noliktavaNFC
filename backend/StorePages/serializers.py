@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from .models import Product, Sale, SaleItem, Order, OrderItem
 
+from .models import Product, Sale, SaleItem, Order, OrderItem
+from .validations import validate_password
 
 User = get_user_model()
 
@@ -113,3 +113,4 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_total_amount(self, obj):
         return obj.total_amount
+    

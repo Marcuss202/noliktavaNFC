@@ -64,8 +64,8 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const register = async (email, password, full_name, phone) => {
-    return await authAPI.register(email, password, full_name, phone);
+  const register = async (email, password, fullName, phone) => {
+    return await authAPI.register(email, password, fullName, phone);
   };
 
   return (

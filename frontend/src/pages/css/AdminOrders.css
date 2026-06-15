@@ -75,6 +75,39 @@
   vertical-align: middle;
 }
 
+.order-summary-row {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.order-summary-row:hover,
+.order-summary-row.expanded {
+  background: #f8fafc;
+}
+
+.order-toggle {
+  width: 26px;
+  height: 26px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.order-toggle:hover {
+  border-color: #0b75da;
+  color: #0b75da;
+}
+
+.order-id {
+  font-weight: 700;
+}
+
 .orders-address {
   max-width: 240px;
 }
@@ -111,10 +144,99 @@
   cursor: progress;
 }
 
+.order-details-row td {
+  background: #f8fafc;
+  padding: 0 10px 16px;
+}
+
+.order-details {
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  background: #fff;
+  padding: 14px;
+}
+
+.packing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.packing-header h2 {
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.packing-header span,
+.packing-empty {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.packing-list {
+  display: grid;
+  gap: 8px;
+}
+
+.packing-item {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 90px 120px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #eef2f7;
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+.packing-item strong {
+  display: block;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.packing-item span {
+  display: block;
+  color: #64748b;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.packing-qty {
+  text-align: center;
+}
+
+.packing-qty strong {
+  font-size: 18px;
+}
+
+.packing-line-total {
+  color: #0f172a;
+  font-weight: 700;
+  text-align: right;
+}
+
 @media (max-width: 640px) {
   .orders-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+
+  .packing-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .packing-item {
+    grid-template-columns: 1fr;
+  }
+
+  .packing-qty,
+  .packing-line-total {
+    text-align: left;
   }
 }

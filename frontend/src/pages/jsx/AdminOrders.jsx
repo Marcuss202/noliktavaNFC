@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { AdminPanel } from '../../components/adminPanel';
 import { ordersAPI } from '../../api';
 import '../css/AdminOrders.css';
@@ -33,6 +33,7 @@ export const AdminOrders = () => {
   const [sortKey, setSortKey] = useState('created_at');
   const [sortDir, setSortDir] = useState('desc');
   const [savingId, setSavingId] = useState(null);
+  const [expandedOrders, setExpandedOrders] = useState(() => new Set());
 
   const loadOrders = async (key, dir) => {
     setLoading(true);
@@ -63,7 +64,19 @@ export const AdminOrders = () => {
 
   const sortIndicator = (key) => {
     if (key !== sortKey) return '';
-    return sortDir === 'asc' ? ' ▲' : ' ▼';
+    return sortDir === 'asc' ? ' ^' : ' v';
+  };
+
+  const toggleOrder = (orderId) => {
+    setExpandedOrders((current) => {
+      const next = new Set(current);
+      if (next.has(orderId)) {
+        next.delete(orderId);
+      } else {
+        next.add(orderId);
+      }
+      return next;
+    });
   };
 
   const handleStatusChange = async (order, status) => {
@@ -73,7 +86,7 @@ export const AdminOrders = () => {
       setOrders((current) => current.map((o) => (o.id === order.id ? { ...o, ...updated } : o)));
       try {
         window.dispatchEvent(new CustomEvent('show-toast', {
-          detail: { type: 'success', text: `Order #${order.id} → ${updated.status_display}` },
+          detail: { type: 'success', text: `Order #${order.id} -> ${updated.status_display}` },
         }));
       } catch { /* noop */ }
     } catch (err) {
@@ -101,7 +114,7 @@ export const AdminOrders = () => {
         {error && <div className="orders-status error">{error}</div>}
 
         {loading ? (
-          <div className="orders-status">Loading orders…</div>
+          <div className="orders-status">Loading orders...</div>
         ) : orders.length === 0 ? (
           <div className="orders-status">No orders yet.</div>
         ) : (
@@ -126,34 +139,92 @@ export const AdminOrders = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
-                  <tr key={order.id}>
-                    <td>#{order.id}</td>
-                    <td>{new Date(order.created_at).toLocaleString()}</td>
-                    <td>{order.full_name || '—'}</td>
-                    <td>{order.email}</td>
-                    <td className="orders-address">{order.address || '—'}</td>
-                    <td>
-                      <span className={`status-badge status-${order.status}`}>
-                        {order.status_display}
-                      </span>
-                    </td>
-                    <td>{itemsCount(order)}</td>
-                    <td>{fmtMoney(order.total_amount)}</td>
-                    <td>
-                      <select
-                        className="status-select"
-                        value={order.status}
-                        disabled={savingId === order.id}
-                        onChange={(e) => handleStatusChange(order, e.target.value)}
+                {orders.map((order) => {
+                  const isExpanded = expandedOrders.has(order.id);
+                  const items = order.items || [];
+
+                  return (
+                    <Fragment key={order.id}>
+                      <tr
+                        className={`order-summary-row ${isExpanded ? 'expanded' : ''}`}
+                        onClick={() => toggleOrder(order.id)}
                       >
-                        {STATUS_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
+                        <td>
+                          <button
+                            type="button"
+                            className="order-toggle"
+                            aria-expanded={isExpanded}
+                            aria-label={`${isExpanded ? 'Collapse' : 'Expand'} order #${order.id}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleOrder(order.id);
+                            }}
+                          >
+                            {isExpanded ? '-' : '+'}
+                          </button>
+                          <span className="order-id">#{order.id}</span>
+                        </td>
+                        <td>{new Date(order.created_at).toLocaleString()}</td>
+                        <td>{order.full_name || '-'}</td>
+                        <td>{order.email}</td>
+                        <td className="orders-address">{order.address || '-'}</td>
+                        <td>
+                          <span className={`status-badge status-${order.status}`}>
+                            {order.status_display}
+                          </span>
+                        </td>
+                        <td>{itemsCount(order)}</td>
+                        <td>{fmtMoney(order.total_amount)}</td>
+                        <td onClick={(e) => e.stopPropagation()}>
+                          <select
+                            className="status-select"
+                            value={order.status}
+                            disabled={savingId === order.id}
+                            onChange={(e) => handleStatusChange(order, e.target.value)}
+                          >
+                            {STATUS_OPTIONS.map((opt) => (
+                              <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            ))}
+                          </select>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr className="order-details-row">
+                          <td colSpan="9">
+                            <div className="order-details">
+                              <div className="packing-header">
+                                <h2>Packing list</h2>
+                                <span>{items.length} product{items.length === 1 ? '' : 's'}</span>
+                              </div>
+
+                              {items.length === 0 ? (
+                                <p className="packing-empty">No items found for this order.</p>
+                              ) : (
+                                <div className="packing-list">
+                                  {items.map((item) => (
+                                    <div key={item.id} className="packing-item">
+                                      <div>
+                                        <strong>{item.product_name || `Product #${item.product}`}</strong>
+                                        <span>{fmtMoney(item.unit_price)} each</span>
+                                      </div>
+                                      <div className="packing-qty">
+                                        <span>Qty</span>
+                                        <strong>{item.quantity}</strong>
+                                      </div>
+                                      <div className="packing-line-total">
+                                        {fmtMoney(item.line_total)}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>

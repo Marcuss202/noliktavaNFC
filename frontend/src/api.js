@@ -96,22 +96,57 @@ export const authAPI = {
     throw new Error(error.detail || 'Login failed');
   },
 
-
-  // Register new user
-  register: async (email, password, full_name, phone) => {
-    const res = await fetchWithAuth('/api/auth/register', {
+  logout: async () => {
+    const res = await fetchWithAuth('/api/auth/logout', {
       method: 'POST',
-      body: JSON.stringify({ email, password, full_name, phone }),
     });
-    if (res.ok) return res.json();
-    const error = await res.json();
-    throw new Error(JSON.stringify(error));
+
+    localStorage.removeItem('jwt_access');
+    localStorage.removeItem('auth_is_staff');
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.detail || 'Logout failed');
+    }
+
+    return true;
   },
 
-  // Logout and clear cookie
-  logout: async () => {
-    await fetchWithAuth('/api/auth/logout', { method: 'POST' });
-    localStorage.removeItem('jwt_access');
+
+  // Register new user
+  register: async (email, password, fullName, phone) => {
+    const res = await fetchWithAuth('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        password,
+        full_name: fullName,
+        phone,
+      }),
+    });
+
+    const text = await res.text();
+
+    let data = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      console.error('Server returned HTML:', text);
+      throw new Error('API route is not reaching Django backend.');
+    }
+
+    if (!res.ok) {
+      throw new Error(
+        data.password?.[0] ||
+        data.email?.[0] ||
+        data.full_name?.[0] ||
+        data.phone?.[0] ||
+        data.detail ||
+        'Registration failed'
+      );
+    }
+
+    return data;
   },
 };
 
