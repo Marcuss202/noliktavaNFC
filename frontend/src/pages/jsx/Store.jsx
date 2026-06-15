@@ -120,7 +120,6 @@ export const Store = () => {
 
       <section className="about-section" id="about">
         <div className="section-inner">
-          <span className="about-label">Who we are</span>
           <h2>
             Built for <span>modern</span> shopping
           </h2>
@@ -142,15 +141,15 @@ export const Store = () => {
             <div className="about-stats">
               <div className="about-stat-card">
                 <strong>10k+</strong>
-                <span>Happy customers worldwide</span>
+                <span>Lorem ipsum dolor</span>
               </div>
               <div className="about-stat-card">
                 <strong>500+</strong>
-                <span>Products available in store</span>
+                <span>sit amet, consectetur</span>
               </div>
               <div className="about-stat-card">
                 <strong>99.9%</strong>
-                <span>Uptime &amp; reliability</span>
+                <span>adipiscing elit</span>
               </div>
             </div>
           </div>
@@ -159,7 +158,6 @@ export const Store = () => {
 
       <section className="contact-section" id="contact">
         <div className="section-inner">
-          <span className="contact-label">Get in touch</span>
           <h2>Contact Us</h2>
           <p>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad
@@ -183,7 +181,7 @@ export const Store = () => {
                 </svg>
               </div>
               <strong>Email</strong>
-              <span>hello@fakeshop.com</span>
+              <span>lorem@gmail.com</span>
             </div>
             <div className="contact-item">
               <div className="contact-item-icon">
@@ -201,7 +199,7 @@ export const Store = () => {
                 </svg>
               </div>
               <strong>Phone</strong>
-              <span>+1 (555) 123-4567</span>
+              <span>+371 1234567</span>
             </div>
             <div className="contact-item">
               <div className="contact-item-icon">
