@@ -1,10 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-
-
 from .models import Product, Sale, SaleItem, Order, OrderItem
 from .validations import validate_password
-
 User = get_user_model()
 
 
@@ -28,10 +25,9 @@ class RegisterSerializer(serializers.Serializer):
         password = validated_data["password"]
         full_name = validated_data.get("full_name", "")
         phone = validated_data.get("phone", "")
-
-        # Create the custom user (Profile) using email as USERNAME_FIELD
         user = User.objects.create_user(email=email, password=password, name=full_name, phone=phone)
         return user
+
 
 class ProductSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False, allow_null=True)
@@ -48,7 +44,6 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductMinimalSerializer(serializers.ModelSerializer):
-    """Lightweight serializer for store list views"""
     image = serializers.SerializerMethodField()
 
     class Meta:
@@ -113,4 +108,3 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_total_amount(self, obj):
         return obj.total_amount
-    

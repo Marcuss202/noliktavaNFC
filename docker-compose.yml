@@ -62,14 +62,6 @@ services:
     networks:
       - noliktava
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflared
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run --token eyJhIjoiNzdkYjBjZDc0NDRmNDU4OGU2YmU5Y2FhZDQ0NGMwYjMiLCJ0IjoiZjU4MDNjNmMtZDVhMS00ZDQ1LWFhNDItODg4MzMzMmFkOWVjIiwicyI6Ik16VmxOelJrTmpBdFpETXlZeTAwWWpBMUxXSmpOVGN0TjJKbFpEYzRPR0UzWmpoaiJ9
-    networks:
-      - noliktava
-
 volumes:
   postgres_data:
 

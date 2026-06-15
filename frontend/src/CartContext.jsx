@@ -1,13 +1,13 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-const CART_STORAGE_KEY = 'nfc_store_cart';
+const CART_STORAGE_KEY = "nfc_store_cart";
 
 const CartContext = createContext(null);
 
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {
-    throw new Error('useCart must be used within CartProvider');
+    throw new Error("useCart must be used within CartProvider");
   }
   return context;
 };
@@ -35,11 +35,11 @@ export const CartProvider = ({ children }) => {
     setItems((current) => {
       const existing = current.find((item) => item.product_id === product.id);
       if (existing) {
-        return current.map((item) => (
+        return current.map((item) =>
           item.product_id === product.id
             ? { ...item, quantity: item.quantity + parsedQuantity }
-            : item
-        ));
+            : item,
+        );
       }
 
       return [
@@ -64,17 +64,25 @@ export const CartProvider = ({ children }) => {
     }
 
     if (parsedQuantity <= 0) {
-      setItems((current) => current.filter((item) => item.product_id !== productId));
+      setItems((current) =>
+        current.filter((item) => item.product_id !== productId),
+      );
       return;
     }
 
-    setItems((current) => current.map((item) => (
-      item.product_id === productId ? { ...item, quantity: parsedQuantity } : item
-    )));
+    setItems((current) =>
+      current.map((item) =>
+        item.product_id === productId
+          ? { ...item, quantity: parsedQuantity }
+          : item,
+      ),
+    );
   };
 
   const removeFromCart = (productId) => {
-    setItems((current) => current.filter((item) => item.product_id !== productId));
+    setItems((current) =>
+      current.filter((item) => item.product_id !== productId),
+    );
   };
 
   const clearCart = () => {
@@ -87,7 +95,8 @@ export const CartProvider = ({ children }) => {
   );
 
   const totalAmount = useMemo(
-    () => items.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0),
+    () =>
+      items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0),
     [items],
   );
 

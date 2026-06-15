@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { fetchWithAuth } from '../../api';
-import { AdminPanel } from '../../components/adminPanel';
-import '../css/AdminInventory.css';
-import '../css/AdminProductEdit.css';
+import { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { fetchWithAuth } from "../../api";
+import { AdminPanel } from "../../components/adminPanel";
+import "../css/AdminInventory.css";
+import "../css/AdminProductEdit.css";
 
 export const AdminProductEdit = () => {
   const { id } = useParams();
@@ -12,16 +12,16 @@ export const AdminProductEdit = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    price: '',
-    stock_quantity: '',
-    nfc_tag_id: '',
-    description: '',
+    name: "",
+    price: "",
+    stock_quantity: "",
+    nfc_tag_id: "",
+    description: "",
     image: null,
   });
   const [imagePreview, setImagePreview] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState('');
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     loadProduct();
@@ -38,10 +38,10 @@ export const AdminProductEdit = () => {
           setImagePreview(data.image);
         }
       } else {
-        setError('Product not found');
+        setError("Product not found");
       }
     } catch (err) {
-      setError('Failed to load product: ' + err.message);
+      setError("Failed to load product: " + err.message);
     } finally {
       setLoading(false);
     }
@@ -51,7 +51,10 @@ export const AdminProductEdit = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === 'price' || name === 'stock_quantity' ? parseFloat(value) : value,
+      [name]:
+        name === "price" || name === "stock_quantity"
+          ? parseFloat(value)
+          : value,
     });
   };
 
@@ -73,21 +76,21 @@ export const AdminProductEdit = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setSuccess('');
+    setSuccess("");
     setError(null);
     try {
       const form = new FormData();
-      form.append('name', formData.name);
-      form.append('price', formData.price);
-      form.append('stock_quantity', formData.stock_quantity);
-      form.append('nfc_tag_id', formData.nfc_tag_id);
-      form.append('description', formData.description);
+      form.append("name", formData.name);
+      form.append("price", formData.price);
+      form.append("stock_quantity", formData.stock_quantity);
+      form.append("nfc_tag_id", formData.nfc_tag_id);
+      form.append("description", formData.description);
       if (formData.image && formData.image instanceof File) {
-        form.append('image', formData.image);
+        form.append("image", formData.image);
       }
 
       const res = await fetchWithAuth(`/api/products/${id}/`, {
-        method: 'PATCH',
+        method: "PATCH",
         body: form,
       });
 
@@ -95,24 +98,45 @@ export const AdminProductEdit = () => {
         const updated = await res.json();
         setProduct(updated);
         setFormData({
-          name: updated.name || '',
-          price: updated.price || '',
-          stock_quantity: updated.stock_quantity ?? '',
-          nfc_tag_id: updated.nfc_tag_id || '',
-          description: updated.description || '',
+          name: updated.name || "",
+          price: updated.price || "",
+          stock_quantity: updated.stock_quantity ?? "",
+          nfc_tag_id: updated.nfc_tag_id || "",
+          description: updated.description || "",
           image: null,
         });
         setImagePreview(updated.image || null);
-        setSuccess('Saved successfully.');
-        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', text: 'Saved successfully.' } })); } catch(e){}
+        setSuccess("Saved successfully.");
+        try {
+          window.dispatchEvent(
+            new CustomEvent("show-toast", {
+              detail: { type: "success", text: "Saved successfully." },
+            }),
+          );
+        } catch (e) {}
       } else {
         const err = await res.json();
-        setError('Failed to save: ' + JSON.stringify(err));
-        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Failed to save.' } })); } catch(e){}
+        setError("Failed to save: " + JSON.stringify(err));
+        try {
+          window.dispatchEvent(
+            new CustomEvent("show-toast", {
+              detail: { type: "error", text: "Failed to save." },
+            }),
+          );
+        } catch (e) {}
       }
     } catch (err) {
-      setError('Error saving product: ' + err.message);
-      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Error saving product: ' + err.message } })); } catch(e){}
+      setError("Error saving product: " + err.message);
+      try {
+        window.dispatchEvent(
+          new CustomEvent("show-toast", {
+            detail: {
+              type: "error",
+              text: "Error saving product: " + err.message,
+            },
+          }),
+        );
+      } catch (e) {}
     } finally {
       setSaving(false);
     }
@@ -123,15 +147,51 @@ export const AdminProductEdit = () => {
       <AdminPanel>
         <div className="edit-page">
           <div className="edit-page-header">
-            <span className="skeleton" style={{height: 28, width: 180, display: 'block', borderRadius: 8}} />
+            <span
+              className="skeleton"
+              style={{
+                height: 28,
+                width: 180,
+                display: "block",
+                borderRadius: 8,
+              }}
+            />
           </div>
-          <div className="skeleton-card" style={{padding: 20}}>
-            <span className="skeleton" style={{height: 14, width: '35%', marginBottom: 16, display: 'block'}} />
-            <span className="skeleton" style={{height: 150, width: 150, borderRadius: 10, marginBottom: 20, display: 'block'}} />
-            {[1,2,3,4].map((i) => (
-              <div key={i} style={{marginBottom: 18}}>
-                <span className="skeleton" style={{height: 12, width: '35%', marginBottom: 8, display: 'block'}} />
-                <span className="skeleton" style={{height: 40, display: 'block', borderRadius: 8}} />
+          <div className="skeleton-card" style={{ padding: 20 }}>
+            <span
+              className="skeleton"
+              style={{
+                height: 14,
+                width: "35%",
+                marginBottom: 16,
+                display: "block",
+              }}
+            />
+            <span
+              className="skeleton"
+              style={{
+                height: 150,
+                width: 150,
+                borderRadius: 10,
+                marginBottom: 20,
+                display: "block",
+              }}
+            />
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} style={{ marginBottom: 18 }}>
+                <span
+                  className="skeleton"
+                  style={{
+                    height: 12,
+                    width: "35%",
+                    marginBottom: 8,
+                    display: "block",
+                  }}
+                />
+                <span
+                  className="skeleton"
+                  style={{ height: 40, display: "block", borderRadius: 8 }}
+                />
               </div>
             ))}
           </div>
@@ -145,7 +205,9 @@ export const AdminProductEdit = () => {
       <AdminPanel>
         <div className="edit-page">
           <div className="error-box">{error}</div>
-          <Link to="/adminInventory" className="btn-back-link">← Back to Inventory</Link>
+          <Link to="/adminInventory" className="btn-back-link">
+            ← Back to Inventory
+          </Link>
         </div>
       </AdminPanel>
     );
@@ -156,8 +218,10 @@ export const AdminProductEdit = () => {
       <div className="edit-page">
         <div className="edit-page-header">
           <div>
-            <Link to="/adminInventory" className="btn-back-link">← Inventory</Link>
-            <h1>{formData.name || 'Edit Product'}</h1>
+            <Link to="/adminInventory" className="btn-back-link">
+              ← Inventory
+            </Link>
+            <h1>{formData.name || "Edit Product"}</h1>
           </div>
         </div>
 
@@ -194,7 +258,10 @@ export const AdminProductEdit = () => {
                     step="0.01"
                     value={formData.price}
                     onChange={handleInputChange}
-                    onKeyDown={(e) => { if (['e','E','+','-'].includes(e.key)) e.preventDefault(); }}
+                    onKeyDown={(e) => {
+                      if (["e", "E", "+", "-"].includes(e.key))
+                        e.preventDefault();
+                    }}
                     required
                   />
                 </div>
@@ -220,9 +287,11 @@ export const AdminProductEdit = () => {
               </div>
               <div className="edit-actions-inline">
                 <button type="submit" className="btn-submit" disabled={saving}>
-                  {saving ? 'Saving…' : 'Save Changes'}
+                  {saving ? "Saving…" : "Save Changes"}
                 </button>
-                <Link to="/adminInventory" className="btn-cancel-inline">Cancel</Link>
+                <Link to="/adminInventory" className="btn-cancel-inline">
+                  Cancel
+                </Link>
               </div>
             </div>
 
@@ -232,23 +301,44 @@ export const AdminProductEdit = () => {
                 type="file"
                 id="editImageInput"
                 accept="image/*"
-                style={{ display: 'none' }}
+                style={{ display: "none" }}
                 onChange={handleImageChange}
               />
               <div
                 className="image-drop-zone"
-                onClick={() => document.getElementById('editImageInput').click()}
+                onClick={() =>
+                  document.getElementById("editImageInput").click()
+                }
               >
                 {imagePreview ? (
                   <img src={imagePreview} alt="Preview" />
                 ) : (
                   <div className="image-placeholder">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#94a3b8" strokeWidth="1.5"/><path d="M3 16l5-5 4 4 3-3 6 6" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"/><circle cx="8.5" cy="8.5" r="1.5" fill="#94a3b8"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                      <rect
+                        x="3"
+                        y="3"
+                        width="18"
+                        height="18"
+                        rx="3"
+                        stroke="#94a3b8"
+                        strokeWidth="1.5"
+                      />
+                      <path
+                        d="M3 16l5-5 4 4 3-3 6 6"
+                        stroke="#94a3b8"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                      />
+                      <circle cx="8.5" cy="8.5" r="1.5" fill="#94a3b8" />
+                    </svg>
                     <span>Click to upload</span>
                   </div>
                 )}
               </div>
-              <p className="edit-image-hint">Leave empty to keep current image.</p>
+              <p className="edit-image-hint">
+                Leave empty to keep current image.
+              </p>
             </div>
           </div>
         </form>

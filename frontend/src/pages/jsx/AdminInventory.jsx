@@ -1,37 +1,38 @@
-import { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { fetchWithAuth } from '../../api';
-import { AdminPanel } from '../../components/adminPanel';
-import '../css/AdminInventory.css';
+import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
+import { fetchWithAuth } from "../../api";
+import { AdminPanel } from "../../components/adminPanel";
+import "../css/AdminInventory.css";
 
 export const AdminInventory = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [formData, setFormData] = useState({
-    name: '',
-    price: '',
-    stock_quantity: '',
-    nfc_tag_id: '',
-    description: '',
+    name: "",
+    price: "",
+    stock_quantity: "",
+    nfc_tag_id: "",
+    description: "",
   });
   const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [notice, setNotice] = useState({ type: '', text: '' });
-  // NFC writing modal: { product, status: 'idle'|'writing'|'success'|'error', message }
+  const [notice, setNotice] = useState({ type: "", text: "" });
+
   const [nfcModal, setNfcModal] = useState(null);
   const nfcAbortRef = useRef(null);
 
-  const nfcSupported = typeof window !== 'undefined' && 'NDEFReader' in window;
+  const nfcSupported = typeof window !== "undefined" && "NDEFReader" in window;
 
   const nfcUrlFor = (product) =>
     `https://nfcstore.lat/nfc/${product.nfc_tag_id}`;
 
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    String(p.nfc_tag_id).includes(search)
+  const filtered = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      String(p.nfc_tag_id).includes(search),
   );
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export const AdminInventory = () => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
     setImageFile(file);
-    
+
     const reader = new FileReader();
     reader.onload = (event) => setImagePreview(event.target.result);
     reader.readAsDataURL(file);
@@ -50,15 +51,21 @@ export const AdminInventory = () => {
 
   const loadProducts = async () => {
     try {
-      const res = await fetchWithAuth('/api/products/');
+      const res = await fetchWithAuth("/api/products/");
       if (res.ok) {
         const data = await res.json();
         setProducts(data);
       }
     } catch (err) {
-      console.error('Failed to load products:', err);
-      setNotice({ type: 'error', text: 'Failed to load products.' });
-      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Failed to load products.' } })); } catch(e){}
+      console.error("Failed to load products:", err);
+      setNotice({ type: "error", text: "Failed to load products." });
+      try {
+        window.dispatchEvent(
+          new CustomEvent("show-toast", {
+            detail: { type: "error", text: "Failed to load products." },
+          }),
+        );
+      } catch (e) {}
     } finally {
       setLoading(false);
     }
@@ -72,75 +79,116 @@ export const AdminInventory = () => {
     });
   };
 
-
   const openFileDialog = () => {
     if (fileInputRef.current) fileInputRef.current.click();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setNotice({ type: '', text: '' });
+    setNotice({ type: "", text: "" });
     try {
       const form = new FormData();
-      form.append('name', formData.name);
-      form.append('nfc_tag_id', formData.nfc_tag_id);
-      form.append('price', parseFloat(formData.price || 0));
-      form.append('stock_quantity', parseInt(formData.stock_quantity || 0));
-      form.append('description', formData.description || '');
-      if (imageFile) form.append('image', imageFile);
+      form.append("name", formData.name);
+      form.append("nfc_tag_id", formData.nfc_tag_id);
+      form.append("price", parseFloat(formData.price || 0));
+      form.append("stock_quantity", parseInt(formData.stock_quantity || 0));
+      form.append("description", formData.description || "");
+      if (imageFile) form.append("image", imageFile);
 
-      const res = await fetchWithAuth('/api/products/', {
-        method: 'POST',
+      const res = await fetchWithAuth("/api/products/", {
+        method: "POST",
         body: form,
       });
       if (res.ok) {
         setFormData({
-          name: '',
-          price: '',
-          stock_quantity: '',
-          nfc_tag_id: '',
-          description: '',
+          name: "",
+          price: "",
+          stock_quantity: "",
+          nfc_tag_id: "",
+          description: "",
         });
         setImageFile(null);
         setImagePreview(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
+        if (fileInputRef.current) fileInputRef.current.value = "";
         setShowForm(false);
         loadProducts();
-        setNotice({ type: 'success', text: 'Product created successfully.' });
-        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', text: 'Product created successfully.' } })); } catch(e){}
+        setNotice({ type: "success", text: "Product created successfully." });
+        try {
+          window.dispatchEvent(
+            new CustomEvent("show-toast", {
+              detail: {
+                type: "success",
+                text: "Product created successfully.",
+              },
+            }),
+          );
+        } catch (e) {}
       } else {
-        setNotice({ type: 'error', text: 'Failed to create product.' });
-        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Failed to create product.' } })); } catch(e){}
+        setNotice({ type: "error", text: "Failed to create product." });
+        try {
+          window.dispatchEvent(
+            new CustomEvent("show-toast", {
+              detail: { type: "error", text: "Failed to create product." },
+            }),
+          );
+        } catch (e) {}
       }
     } catch (err) {
-      setNotice({ type: 'error', text: 'Error: ' + err.message });
-      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Error: ' + err.message } })); } catch(e){}
+      setNotice({ type: "error", text: "Error: " + err.message });
+      try {
+        window.dispatchEvent(
+          new CustomEvent("show-toast", {
+            detail: { type: "error", text: "Error: " + err.message },
+          }),
+        );
+      } catch (e) {}
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure?')) return;
-    setNotice({ type: '', text: '' });
+    if (!window.confirm("Are you sure?")) return;
+    setNotice({ type: "", text: "" });
     try {
       const res = await fetchWithAuth(`/api/products/${id}/`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
       if (res.ok) {
         loadProducts();
-        setNotice({ type: 'success', text: 'Product deleted successfully.' });
-        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', text: 'Product deleted successfully.' } })); } catch(e){}
+        setNotice({ type: "success", text: "Product deleted successfully." });
+        try {
+          window.dispatchEvent(
+            new CustomEvent("show-toast", {
+              detail: {
+                type: "success",
+                text: "Product deleted successfully.",
+              },
+            }),
+          );
+        } catch (e) {}
       } else {
-        setNotice({ type: 'error', text: 'Failed to delete product.' });
-        try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Failed to delete product.' } })); } catch(e){}
+        setNotice({ type: "error", text: "Failed to delete product." });
+        try {
+          window.dispatchEvent(
+            new CustomEvent("show-toast", {
+              detail: { type: "error", text: "Failed to delete product." },
+            }),
+          );
+        } catch (e) {}
       }
     } catch (err) {
-      setNotice({ type: 'error', text: 'Error: ' + err.message });
-      try { window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: 'Error: ' + err.message } })); } catch(e){}
+      setNotice({ type: "error", text: "Error: " + err.message });
+      try {
+        window.dispatchEvent(
+          new CustomEvent("show-toast", {
+            detail: { type: "error", text: "Error: " + err.message },
+          }),
+        );
+      } catch (e) {}
     }
   };
 
   const openNfcModal = (product) => {
-    setNfcModal({ product, status: 'idle', message: '' });
+    setNfcModal({ product, status: "idle", message: "" });
   };
 
   const closeNfcModal = () => {
@@ -155,16 +203,18 @@ export const AdminInventory = () => {
     if (!nfcSupported) {
       setNfcModal({
         product,
-        status: 'error',
-        message: 'Web NFC is not supported on this device. Use Chrome on Android over HTTPS.',
+        status: "error",
+        message:
+          "Web NFC is not supported on this device. Use Chrome on Android over HTTPS.",
       });
       return;
     }
     if (!window.isSecureContext) {
       setNfcModal({
         product,
-        status: 'error',
-        message: 'NFC writing requires HTTPS. Open this page over https:// (or localhost) and try again.',
+        status: "error",
+        message:
+          "NFC writing requires HTTPS. Open this page over https:// (or localhost) and try again.",
       });
       return;
     }
@@ -173,37 +223,53 @@ export const AdminInventory = () => {
     nfcAbortRef.current = controller;
     setNfcModal({
       product,
-      status: 'writing',
-      message: 'Hold your phone against an NFC tag and keep it still…',
+      status: "writing",
+      message: "Hold your phone against an NFC tag and keep it still…",
     });
     try {
       const ndef = new window.NDEFReader();
-      await ndef.write({
-        records: [
-          {
-            recordType: "url",
-            data: url,
-          },
-        ],
-      }, {
-        signal: controller.signal,
-        overwrite: true,
-      });
+      await ndef.write(
+        {
+          records: [
+            {
+              recordType: "url",
+              data: url,
+            },
+          ],
+        },
+        {
+          signal: controller.signal,
+          overwrite: true,
+        },
+      );
       nfcAbortRef.current = null;
-      setNfcModal({ product, status: 'success', message: `Tag written with ${url}` });
+      setNfcModal({
+        product,
+        status: "success",
+        message: `Tag written with ${url}`,
+      });
       try {
-        window.dispatchEvent(new CustomEvent('show-toast', {
-          detail: { type: 'success', text: `NFC tag linked to ${product.name}.` },
-        }));
-      } catch { /* noop */ }
+        window.dispatchEvent(
+          new CustomEvent("show-toast", {
+            detail: {
+              type: "success",
+              text: `NFC tag linked to ${product.name}.`,
+            },
+          }),
+        );
+      } catch {}
     } catch (err) {
       nfcAbortRef.current = null;
-      if (err && err.name === 'AbortError') return;
-      const detail = err ? `${err.name}: ${err.message}` : 'Unknown error';
-      setNfcModal({ product, status: 'error', message: detail });
+      if (err && err.name === "AbortError") return;
+      const detail = err ? `${err.name}: ${err.message}` : "Unknown error";
+      setNfcModal({ product, status: "error", message: detail });
       try {
-        window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', text: detail } }));
-      } catch { /* noop */ }
+        window.dispatchEvent(
+          new CustomEvent("show-toast", {
+            detail: { type: "error", text: detail },
+          }),
+        );
+      } catch {}
     }
   };
 
@@ -213,7 +279,9 @@ export const AdminInventory = () => {
         <div className="inventory-header">
           <div>
             <h1>Inventory</h1>
-            <p className="inv-subtitle">{products.length} product{products.length !== 1 ? 's' : ''} total</p>
+            <p className="inv-subtitle">
+              {products.length} product{products.length !== 1 ? "s" : ""} total
+            </p>
           </div>
           <div className="inventory-header-actions">
             <input
@@ -224,13 +292,15 @@ export const AdminInventory = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
             <button onClick={() => setShowForm(!showForm)} className="btn-add">
-              {showForm ? '✕ Cancel' : '+ Add Product'}
+              {showForm ? "✕ Cancel" : "+ Add Product"}
             </button>
           </div>
         </div>
 
         {notice.text && (
-          <div className={`inventory-notice ${notice.type === 'success' ? 'ok' : 'err'}`}>
+          <div
+            className={`inventory-notice ${notice.type === "success" ? "ok" : "err"}`}
+          >
             {notice.text}
           </div>
         )}
@@ -243,36 +313,109 @@ export const AdminInventory = () => {
                 <div className="form-grid-2">
                   <div className="form-group">
                     <label>Product Name *</label>
-                    <input type="text" name="name" placeholder="e.g. Widget Pro" value={formData.name} onChange={handleInputChange} required />
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="e.g. Widget Pro"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </div>
                   <div className="form-group">
                     <label>NFC Tag ID *</label>
-                    <input type="number" name="nfc_tag_id" placeholder="e.g. 10042" value={formData.nfc_tag_id} onChange={handleInputChange} required />
+                    <input
+                      type="number"
+                      name="nfc_tag_id"
+                      placeholder="e.g. 10042"
+                      value={formData.nfc_tag_id}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </div>
                   <div className="form-group">
                     <label>Price (€) *</label>
-                    <input type="number" name="price" placeholder="0.00" step="0.01" value={formData.price} onChange={handleInputChange} onKeyDown={(e) => { if (['+','-'].includes(e.key)) e.preventDefault(); }} required />
+                    <input
+                      type="number"
+                      name="price"
+                      placeholder="0.00"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      onKeyDown={(e) => {
+                        if (["+", "-"].includes(e.key)) e.preventDefault();
+                      }}
+                      required
+                    />
                   </div>
                   <div className="form-group">
                     <label>Stock Quantity *</label>
-                    <input type="number" name="stock_quantity" placeholder="0" value={formData.stock_quantity} onChange={handleInputChange} required />
+                    <input
+                      type="number"
+                      name="stock_quantity"
+                      placeholder="0"
+                      value={formData.stock_quantity}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </div>
                 </div>
                 <div className="form-group">
                   <label>Description</label>
-                  <textarea name="description" placeholder="Optional product description…" value={formData.description} onChange={handleInputChange} rows="3" />
+                  <textarea
+                    name="description"
+                    placeholder="Optional product description…"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    rows="3"
+                  />
                 </div>
-                <button type="submit" className="btn-submit">Create Product</button>
+                <button type="submit" className="btn-submit">
+                  Create Product
+                </button>
               </div>
               <div className="form-image-col">
                 <label className="form-img-label">Product Image</label>
-                <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImageChange} />
-                <div className="image-drop-zone" onClick={() => fileInputRef.current && fileInputRef.current.click()}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleImageChange}
+                />
+                <div
+                  className="image-drop-zone"
+                  onClick={() =>
+                    fileInputRef.current && fileInputRef.current.click()
+                  }
+                >
                   {imagePreview ? (
                     <img src={imagePreview} alt="Preview" />
                   ) : (
                     <div className="image-placeholder">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#94a3b8" strokeWidth="1.5"/><path d="M3 16l5-5 4 4 3-3 6 6" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"/><circle cx="8.5" cy="8.5" r="1.5" fill="#94a3b8"/></svg>
+                      <svg
+                        width="28"
+                        height="28"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <rect
+                          x="3"
+                          y="3"
+                          width="18"
+                          height="18"
+                          rx="3"
+                          stroke="#94a3b8"
+                          strokeWidth="1.5"
+                        />
+                        <path
+                          d="M3 16l5-5 4 4 3-3 6 6"
+                          stroke="#94a3b8"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                        <circle cx="8.5" cy="8.5" r="1.5" fill="#94a3b8" />
+                      </svg>
                       <span>Click to upload</span>
                     </div>
                   )}
@@ -284,14 +427,43 @@ export const AdminInventory = () => {
 
         {loading ? (
           <div className="inv-skeleton">
-            {[1,2,3,4,5].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="inv-skel-row">
-                <span className="skeleton" style={{width: 44, height: 44, borderRadius: 8, flexShrink: 0, display: 'block'}} />
-                <span className="skeleton" style={{flex: 2, height: 16, display: 'block'}} />
-                <span className="skeleton" style={{flex: 1, height: 16, display: 'block'}} />
-                <span className="skeleton" style={{flex: 1, height: 16, display: 'block'}} />
-                <span className="skeleton" style={{flex: 1, height: 16, display: 'block'}} />
-                <span className="skeleton" style={{width: 120, height: 32, borderRadius: 6, display: 'block'}} />
+                <span
+                  className="skeleton"
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 8,
+                    flexShrink: 0,
+                    display: "block",
+                  }}
+                />
+                <span
+                  className="skeleton"
+                  style={{ flex: 2, height: 16, display: "block" }}
+                />
+                <span
+                  className="skeleton"
+                  style={{ flex: 1, height: 16, display: "block" }}
+                />
+                <span
+                  className="skeleton"
+                  style={{ flex: 1, height: 16, display: "block" }}
+                />
+                <span
+                  className="skeleton"
+                  style={{ flex: 1, height: 16, display: "block" }}
+                />
+                <span
+                  className="skeleton"
+                  style={{
+                    width: 120,
+                    height: 32,
+                    borderRadius: 6,
+                    display: "block",
+                  }}
+                />
               </div>
             ))}
           </div>
@@ -300,7 +472,7 @@ export const AdminInventory = () => {
             <table>
               <thead>
                 <tr>
-                  <th style={{width: 56}}></th>
+                  <th style={{ width: 56 }}></th>
                   <th>Product</th>
                   <th>NFC ID</th>
                   <th>Price</th>
@@ -310,16 +482,29 @@ export const AdminInventory = () => {
               </thead>
               <tbody>
                 {filtered.length === 0 && (
-                  <tr><td colSpan="6" className="empty-row">No products found.</td></tr>
+                  <tr>
+                    <td colSpan="6" className="empty-row">
+                      No products found.
+                    </td>
+                  </tr>
                 )}
                 {filtered.map((product) => {
                   const stock = product.stock_quantity;
-                  const stockClass = stock <= 5 ? 'badge-critical' : stock <= 15 ? 'badge-warning' : 'badge-ok';
+                  const stockClass =
+                    stock <= 5
+                      ? "badge-critical"
+                      : stock <= 15
+                        ? "badge-warning"
+                        : "badge-ok";
                   return (
                     <tr key={product.id}>
                       <td className="thumb-cell">
                         {product.image ? (
-                          <img src={product.image} alt={product.name} className="product-thumb" />
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="product-thumb"
+                          />
                         ) : (
                           <div className="product-thumb-placeholder" />
                         )}
@@ -327,11 +512,30 @@ export const AdminInventory = () => {
                       <td className="name-cell">{product.name}</td>
                       <td className="nfc-cell">{product.nfc_tag_id}</td>
                       <td>€{parseFloat(product.price).toFixed(2)}</td>
-                      <td><span className={`stock-badge ${stockClass}`}>{stock}</span></td>
+                      <td>
+                        <span className={`stock-badge ${stockClass}`}>
+                          {stock}
+                        </span>
+                      </td>
                       <td className="actions-cell">
-                        <Link to={`/adminInventory/${product.id}/`} className="link-edit">Edit</Link>
-                        <button onClick={() => openNfcModal(product)} className="btn-nfc">Add NFC</button>
-                        <button onClick={() => handleDelete(product.id)} className="btn-delete">Delete</button>
+                        <Link
+                          to={`/adminInventory/${product.id}/`}
+                          className="link-edit"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => openNfcModal(product)}
+                          className="btn-nfc"
+                        >
+                          Add NFC
+                        </button>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="btn-delete"
+                        >
+                          Delete
+                        </button>
                       </td>
                     </tr>
                   );
@@ -344,41 +548,54 @@ export const AdminInventory = () => {
         {nfcModal && (
           <div className="nfc-overlay" onClick={closeNfcModal}>
             <div className="nfc-modal" onClick={(e) => e.stopPropagation()}>
-              <button className="nfc-close" onClick={closeNfcModal} aria-label="Close">✕</button>
+              <button
+                className="nfc-close"
+                onClick={closeNfcModal}
+                aria-label="Close"
+              >
+                ✕
+              </button>
               <h3>Link NFC tag</h3>
               <p className="nfc-product">{nfcModal.product.name}</p>
               <p className="nfc-url">{nfcUrlFor(nfcModal.product)}</p>
 
-              {!nfcSupported && nfcModal.status !== 'error' && (
+              {!nfcSupported && nfcModal.status !== "error" && (
                 <p className="nfc-warn">
-                  Web NFC is only available in Chrome on Android over HTTPS. Open this page on an
-                  Android phone to write tags.
+                  Web NFC is only available in Chrome on Android over HTTPS.
+                  Open this page on an Android phone to write tags.
                 </p>
               )}
-              {nfcSupported && !window.isSecureContext && nfcModal.status !== 'error' && (
-                <p className="nfc-warn">
-                  This page must be served over <b>HTTPS</b> (or localhost) for NFC writing to work.
-                </p>
-              )}
+              {nfcSupported &&
+                !window.isSecureContext &&
+                nfcModal.status !== "error" && (
+                  <p className="nfc-warn">
+                    This page must be served over <b>HTTPS</b> (or localhost)
+                    for NFC writing to work.
+                  </p>
+                )}
 
-              {nfcModal.status === 'writing' && (
+              {nfcModal.status === "writing" && (
                 <div className="nfc-status writing">
                   <span className="nfc-spinner" />
                   <span>{nfcModal.message}</span>
                 </div>
               )}
-              {nfcModal.status === 'success' && (
+              {nfcModal.status === "success" && (
                 <div className="nfc-status ok">{nfcModal.message}</div>
               )}
-              {nfcModal.status === 'error' && (
+              {nfcModal.status === "error" && (
                 <div className="nfc-status err">{nfcModal.message}</div>
               )}
 
               <div className="nfc-actions">
-                {nfcModal.status === 'success' ? (
-                  <button className="nfc-btn" onClick={closeNfcModal}>Done</button>
-                ) : nfcModal.status === 'writing' ? (
-                  <button className="nfc-secondary-btn" onClick={closeNfcModal}>Cancel</button>
+                {nfcModal.status === "success" ? (
+                  <button className="nfc-btn" onClick={closeNfcModal}>
+                    Done
+                  </button>
+                ) : nfcModal.status === "writing" ? (
+                  <button className="nfc-secondary-btn" onClick={closeNfcModal}>
+                    Cancel
+                  </button>
                 ) : (
                   <>
                     <button
@@ -386,9 +603,16 @@ export const AdminInventory = () => {
                       onClick={() => writeNfc(nfcModal.product)}
                       disabled={!nfcSupported}
                     >
-                      {nfcModal.status === 'error' ? 'Try again' : 'Scan & write tag'}
+                      {nfcModal.status === "error"
+                        ? "Try again"
+                        : "Scan & write tag"}
                     </button>
-                    <button className="nfc-secondary-btn" onClick={closeNfcModal}>Close</button>
+                    <button
+                      className="nfc-secondary-btn"
+                      onClick={closeNfcModal}
+                    >
+                      Close
+                    </button>
                   </>
                 )}
               </div>

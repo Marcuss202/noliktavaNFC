@@ -1,20 +1,3 @@
-"""
-URL configuration for BackendNFC project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.views.static import serve
@@ -23,23 +6,12 @@ from StorePages.views_auth import RegisterView, MeView, LoginView, LogoutView
 from StorePages.views_products import ProductViewSet, CheckoutSaleView
 from StorePages.views_reports import DashboardReportView, SalesReportView, OrdersReportView
 from StorePages.views_orders import OrderListView, OrderDetailView, AccountEmailsView
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
-
-# Router for ViewSets
 router = DefaultRouter()
 router.register(r'products', ProductViewSet, basename='product')
-
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    # Auth endpoints
     path('api/auth/register', RegisterView.as_view(), name='register'),
     path('api/auth/login', LoginView.as_view(), name='login'),
     path('api/auth/logout', LogoutView.as_view(), name='logout'),
-    path('api/auth/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/auth/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/me', MeView.as_view(), name='me'),
     path('api/checkout', CheckoutSaleView.as_view(), name='checkout'),
     path('api/accounts/emails', AccountEmailsView.as_view(), name='account_emails'),
@@ -48,7 +20,6 @@ urlpatterns = [
     path('api/reports/dashboard', DashboardReportView.as_view(), name='report_dashboard'),
     path('api/reports/sales', SalesReportView.as_view(), name='report_sales'),
     path('api/reports/orders', OrdersReportView.as_view(), name='report_orders'),
-    # Product routes (via router)
     path('api/', include(router.urls)),
 ]
 

@@ -7,73 +7,52 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from django.db import transaction
-
 from .models import Product, Sale, SaleItem, Order, OrderItem
 from .serializers import ProductSerializer, ProductMinimalSerializer, OrderSerializer
-
-
 User = get_user_model()
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    """
-    API endpoints for products.
-    - List: GET /api/products/ (public)
-    - Detail: GET /api/products/<id>/ (public)
-    - Create: POST /api/products/ (admin only)
-    - Update: PUT /api/products/<id>/ (admin only)
-    - Partial update: PATCH /api/products/<id>/ (admin only)
-    - Delete: DELETE /api/products/<id>/ (admin only)
-    """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_serializer_class(self):
-        """Use minimal serializer for list views"""
         if self.action == 'list':
             return ProductMinimalSerializer
         return ProductSerializer
 
     def get_permissions(self):
-        """Allow read-only for all users; write only for staff"""
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             permission_classes = [IsAuthenticated]
             return [permission() for permission in permission_classes]
         return super().get_permissions()
 
     def perform_create(self, serializer):
-        """Only staff can create products"""
         if not self.request.user.is_staff:
             raise PermissionDenied("Only admin users can create products")
         serializer.save()
 
     def perform_update(self, serializer):
-        """Only staff can update products"""
         if not self.request.user.is_staff:
             raise PermissionDenied("Only admin users can update products")
         serializer.save()
 
     def perform_destroy(self, instance):
-        """Only staff can delete products"""
         if not self.request.user.is_staff:
             raise PermissionDenied("Only admin users can delete products")
         instance.delete()
 
     @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def lookup_nfc(self, request):
-        """
-        Lookup product by NFC tag ID.
-        GET /api/products/lookup_nfc/?nfc_tag_id=<tag_id>
-        """
         nfc_tag_id = request.query_params.get('nfc_tag_id')
         if not nfc_tag_id:
             return Response(
                 {'error': 'nfc_tag_id query parameter is required'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         try:
             product = Product.objects.get(nfc_tag_id=nfc_tag_id)
             serializer = self.get_serializer(product)
@@ -86,21 +65,15 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
     def update_stock(self, request, pk=None):
-        """
-        Update stock quantity for a product.
-        PATCH /api/products/<id>/update_stock/
-        Body: {"quantity": 10}  (replaces stock) or {"delta": 5} (adds/subtracts)
-        """
         if not request.user.is_staff:
             return Response(
                 {'error': 'Only admin users can update stock'},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
+
         product = self.get_object()
         quantity = request.data.get('quantity')
         delta = request.data.get('delta')
-
         if quantity is not None:
             product.stock_quantity = quantity
         elif delta is not None:
@@ -117,17 +90,6 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
 class CheckoutSaleView(APIView):
-    """
-    Create an order (and its underlying sale) from cart items and decrease stock.
-    POST /api/checkout
-    Body: {
-        "items": [{"product_id": 1, "quantity": 2}],
-        "email": "buyer@example.com",          # must belong to an existing account
-        "street": "...", "house_number": "...", "city": "...",
-        "postal_code": "...", "country": "...",
-        "note": "optional"
-    }
-    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -139,14 +101,12 @@ class CheckoutSaleView(APIView):
         city = (request.data.get('city') or '').strip()
         postal_code = (request.data.get('postal_code') or '').strip()
         country = (request.data.get('country') or '').strip()
-
         if not email:
             return Response(
                 {'error': 'An email is required to place an order.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # The order email must belong to an existing account.
         customer = User.objects.filter(email__iexact=email).first()
         if customer is None:
             return Response(
@@ -183,15 +143,15 @@ class CheckoutSaleView(APIView):
             {'product_id': product_id, 'quantity': quantity}
             for product_id, quantity in normalized_items.items()
         ]
-        product_ids = [item['product_id'] for item in compact_items]
 
+        product_ids = [item['product_id'] for item in compact_items]
         with transaction.atomic():
             products = (
                 Product.objects.select_for_update()
                 .filter(id__in=product_ids)
             )
-            products_by_id = {product.id: product for product in products}
 
+            products_by_id = {product.id: product for product in products}
             missing_ids = [pid for pid in product_ids if pid not in products_by_id]
             if missing_ids:
                 return Response(
@@ -214,13 +174,12 @@ class CheckoutSaleView(APIView):
                 note=note,
                 status=Order.STATUS_PENDING,
             )
+
             sale_items = []
             order_items = []
-
             for item in compact_items:
                 product = products_by_id[item['product_id']]
                 quantity = item['quantity']
-
                 if product.stock_quantity < quantity:
                     return Response(
                         {
@@ -234,7 +193,6 @@ class CheckoutSaleView(APIView):
 
                 product.stock_quantity -= quantity
                 product.save(update_fields=['stock_quantity'])
-
                 sale_items.append(
                     SaleItem(
                         sale=sale,
@@ -243,6 +201,7 @@ class CheckoutSaleView(APIView):
                         unit_price=product.price,
                     )
                 )
+
                 order_items.append(
                     OrderItem(
                         order=order,

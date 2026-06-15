@@ -18,6 +18,7 @@ class ProfileManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
 
+
 class Profile(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
@@ -25,13 +26,11 @@ class Profile(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=32, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    
-
     objects = ProfileManager()
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
-    
+
+
 class Product(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -81,7 +80,6 @@ class Order(models.Model):
     STATUS_SHIPPED = 'shipped'
     STATUS_COMPLETED = 'completed'
     STATUS_CANCELLED = 'cancelled'
-
     STATUS_CHOICES = [
         (STATUS_PENDING, 'Pending'),
         (STATUS_PROCESSING, 'Processing'),
@@ -98,6 +96,7 @@ class Order(models.Model):
         null=True,
         blank=True,
     )
+
     sale = models.OneToOneField(
         Sale,
         on_delete=models.SET_NULL,
@@ -105,6 +104,7 @@ class Order(models.Model):
         null=True,
         blank=True,
     )
+
     email = models.EmailField()
     full_name = models.CharField(max_length=255, blank=True)
     phone = models.CharField(max_length=32, blank=True)
@@ -136,6 +136,7 @@ class Order(models.Model):
             self.postal_code,
             self.country,
         ]
+
         return ', '.join(part for part in parts if part)
 
 

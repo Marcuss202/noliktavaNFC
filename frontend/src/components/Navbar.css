@@ -114,7 +114,6 @@
   color: #fff;
 }
 
-/* Cart icon button */
 .nav-icon-btn {
   position: relative;
   width: 44px;
@@ -143,17 +142,14 @@
   right: -7px;
 }
 
-/* Solid navbar for non-home pages (cart, item detail, etc.) */
 .navbar.navbar-solid {
   background: #0f172a;
 }
 
-/* Avatar wrapper + dropdown */
 .nav-avatar-wrap {
   position: relative;
 }
 
-/* User avatar circle */
 .nav-avatar {
   width: 44px;
   height: 44px;
@@ -178,7 +174,6 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-/* Dropdown menu */
 .nav-dropdown {
   position: absolute;
   top: calc(100% + 10px);
@@ -194,8 +189,14 @@
 }
 
 @keyframes dropdownFade {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropdown-user-info {
@@ -242,7 +243,6 @@
   background: #fff5f5;
 }
 
-/* Light section overrides */
 .navbar.navbar-light .nav-icon-btn {
   color: #0f172a;
   border-color: rgba(15, 23, 42, 0.25);

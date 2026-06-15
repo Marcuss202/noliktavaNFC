@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
-import { useAuth } from '../../AuthContext';
-import { fetchWithAuth, fetchPublic } from '../../api';
+import { useEffect } from "react";
+import { useParams, Navigate } from "react-router-dom";
+import { useAuth } from "../../AuthContext";
+import { fetchWithAuth, fetchPublic } from "../../api";
 
 export const NFCRedirect = () => {
   const { nfc_tag_id } = useParams();
@@ -9,17 +9,19 @@ export const NFCRedirect = () => {
 
   useEffect(() => {
     if (loading) return;
-    
+
     if (user && user.is_staff) {
       const getProductId = async () => {
         try {
-          const res = await fetchWithAuth(`/api/products/lookup_nfc/?nfc_tag_id=${encodeURIComponent(nfc_tag_id)}`);
+          const res = await fetchWithAuth(
+            `/api/products/lookup_nfc/?nfc_tag_id=${encodeURIComponent(nfc_tag_id)}`,
+          );
           if (res.ok) {
             const data = await res.json();
             window.location.href = `/adminInventory/${data.id}`;
           }
         } catch (err) {
-          console.error('Failed to fetch product:', err);
+          console.error("Failed to fetch product:", err);
         }
       };
       getProductId();

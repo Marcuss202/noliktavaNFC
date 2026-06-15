@@ -5,13 +5,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.conf import settings
-
 from .serializers import RegisterSerializer
 from .authentication import JWTCookieAuthentication
 
 
 class RegisterView(APIView):
-    authentication_classes = []  # Allow anonymous registration
+    authentication_classes = []
     permission_classes = []
 
     def post(self, request):
@@ -33,7 +32,6 @@ class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email', '').strip().lower()
         password = request.data.get('password')
-        
         user = authenticate(request, username=email, password=password)
         if user:
             refresh = RefreshToken.for_user(user)
@@ -44,28 +42,27 @@ class LoginView(APIView):
                 "email": user.email,
                 "name": getattr(user, "name", None),
                 "is_staff": user.is_staff,
-                "access": str(refresh.access_token),  # include token for header-based auth
+                "access": str(refresh.access_token),
             }, status=status.HTTP_200_OK)
-            
-            # Set tokens in httpOnly cookies for security
             response.set_cookie(
                 key='jwt_access',
                 value=str(refresh.access_token),
                 httponly=True,
-                secure=False,  # Set to False for local HTTP development
-                samesite='None',  # must be None for cross-origin fetch/Development
+                secure=False,
+                samesite='None',
                 max_age=access_max_age
             )
+
             response.set_cookie(
                 key='jwt_refresh',
                 value=str(refresh),
                 httponly=True,
-                secure=False,  # Set to False for local HTTP development
-                samesite='None',  # must be None for cross-origin fetch/Development
+                secure=False,
+                samesite='None',
                 max_age=refresh_max_age
             )
+
             return response
-        
         return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 

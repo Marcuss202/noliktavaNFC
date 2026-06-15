@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import '../pages/css/Toast.css';
+import { useEffect, useState } from "react";
+import "../pages/css/Toast.css";
 
 export default function Toast() {
   const [toasts, setToasts] = useState([]);
@@ -8,19 +8,24 @@ export default function Toast() {
     const handler = (e) => {
       const detail = e.detail || {};
       const id = Date.now() + Math.random();
-      const toast = { id, type: detail.type || 'info', text: detail.text || '' };
+      const toast = {
+        id,
+        type: detail.type || "info",
+        text: detail.text || "",
+      };
       setToasts((t) => [...t, toast]);
-      // auto remove
+
       setTimeout(() => {
         setToasts((t) => t.filter((x) => x.id !== id));
       }, detail.timeout || 4000);
     };
 
-    window.addEventListener('show-toast', handler);
-    // also expose helper
-    window.showToast = (payload) => window.dispatchEvent(new CustomEvent('show-toast', { detail: payload }));
+    window.addEventListener("show-toast", handler);
+
+    window.showToast = (payload) =>
+      window.dispatchEvent(new CustomEvent("show-toast", { detail: payload }));
     return () => {
-      window.removeEventListener('show-toast', handler);
+      window.removeEventListener("show-toast", handler);
       delete window.showToast;
     };
   }, []);
@@ -28,9 +33,17 @@ export default function Toast() {
   return (
     <div className="toast-portal" aria-live="polite" aria-atomic="true">
       {toasts.map((t) => (
-        <div key={t.id} className={`toast ${t.type === 'success' ? 'toast-success' : t.type === 'error' ? 'toast-error' : 'toast-info'}`}>
+        <div
+          key={t.id}
+          className={`toast ${t.type === "success" ? "toast-success" : t.type === "error" ? "toast-error" : "toast-info"}`}
+        >
           <div className="toast-body">{t.text}</div>
-          <button className="toast-close" onClick={() => setToasts((s) => s.filter((x) => x.id !== t.id))}>✕</button>
+          <button
+            className="toast-close"
+            onClick={() => setToasts((s) => s.filter((x) => x.id !== t.id))}
+          >
+            ✕
+          </button>
         </div>
       ))}
     </div>

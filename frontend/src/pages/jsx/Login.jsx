@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../AuthContext';
-import '../css/Auth.css';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../AuthContext";
+import "../css/Auth.css";
 
 export const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     try {
       await login(email.trim().toLowerCase(), password);
-      navigate('/');
+      navigate("/");
     } catch (err) {
       setError(err.message);
     }
@@ -26,7 +26,7 @@ export const Login = () => {
       <div className="auth-card">
         <h1>Login</h1>
         <p>Enter your credentials to access your account</p>
-        
+
         <form onSubmit={handleSubmit}>
           <label>
             Email
@@ -51,7 +51,9 @@ export const Login = () => {
 
           {error && <div className="error">{error}</div>}
 
-          <button type="submit" className="btn-primary">Login</button>
+          <button type="submit" className="btn-primary">
+            Login
+          </button>
         </form>
 
         <p className="auth-footer">

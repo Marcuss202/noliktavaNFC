@@ -3,7 +3,6 @@
   max-width: 100%;
 }
 
-/* ── Page header ─────────────────────────────── */
 .edit-page-header {
   display: flex;
   align-items: flex-end;
@@ -33,7 +32,6 @@
   color: #0f172a;
 }
 
-/* ── Action row for save/cancel ─────────────── */
 .edit-actions-inline {
   display: flex;
   align-items: center;
@@ -84,4 +82,3 @@
     width: 100%;
   }
 }
-

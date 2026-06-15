@@ -1,15 +1,12 @@
 from datetime import timedelta
 from decimal import Decimal
-
 from django.db.models import DecimalField, ExpressionWrapper, F, Sum
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from django.db.models import Count
-
 from .models import Order, OrderItem, Product, Sale, SaleItem
 from .serializers import OrderSerializer, SaleSerializer
 
@@ -51,15 +48,12 @@ class DashboardReportView(AdminStaffOnlyMixin):
         denied = self._ensure_staff(request)
         if denied:
             return denied
-
         range_value = request.query_params.get('range', '30d')
         days = _parse_range_days(range_value)
         since = timezone.now() - timedelta(days=days)
-
         sales_items = SaleItem.objects.filter(sale__created_at__gte=since)
         orders_items = OrderItem.objects.filter(order__created_at__gte=since)
         orders_qs = Order.objects.filter(created_at__gte=since)
-
         sales_total = sales_items.aggregate(total=Sum(_money_expression('unit_price')))['total']
         orders_total = orders_items.aggregate(total=Sum(_money_expression('unit_price')))['total']
         sales_count = sales_items.values('sale_id').distinct().count()
@@ -68,7 +62,6 @@ class DashboardReportView(AdminStaffOnlyMixin):
             status__in=[Order.STATUS_COMPLETED, Order.STATUS_CANCELLED]
         ).count()
         low_stock_qs = Product.objects.filter(stock_quantity__lte=10).order_by('stock_quantity', 'name')
-
         sales_series = (
             sales_items
             .annotate(day=TruncDate('sale__created_at'))
@@ -76,6 +69,7 @@ class DashboardReportView(AdminStaffOnlyMixin):
             .annotate(total=Sum(_money_expression('unit_price')))
             .order_by('day')
         )
+
         orders_series = (
             orders_items
             .annotate(day=TruncDate('order__created_at'))
@@ -119,6 +113,7 @@ class DashboardReportView(AdminStaffOnlyMixin):
                 for product in low_stock_qs[:8]
             ],
         }
+
         return Response(payload)
 
 
@@ -127,11 +122,9 @@ class SalesReportView(AdminStaffOnlyMixin):
         denied = self._ensure_staff(request)
         if denied:
             return denied
-
         range_value = request.query_params.get('range', '30d')
         days = _parse_range_days(range_value)
         since = timezone.now() - timedelta(days=days)
-
         sales_qs = (
             SaleItem.objects
             .filter(sale__created_at__gte=since)
@@ -156,7 +149,6 @@ class SalesReportView(AdminStaffOnlyMixin):
         )
 
         sales_ids = sales_qs.values_list('sale_id', flat=True).distinct()
-
         payload = {
             'range': range_value,
             'summary': {
@@ -177,6 +169,7 @@ class SalesReportView(AdminStaffOnlyMixin):
                 many=True,
             ).data,
         }
+
         return Response(payload)
 
 
@@ -185,19 +178,17 @@ class OrdersReportView(AdminStaffOnlyMixin):
         denied = self._ensure_staff(request)
         if denied:
             return denied
-
         range_value = request.query_params.get('range', '30d')
         days = _parse_range_days(range_value)
         since = timezone.now() - timedelta(days=days)
-
         order_items_qs = (
             OrderItem.objects
             .filter(order__created_at__gte=since)
             .select_related('order', 'product')
             .order_by('-order__created_at')
         )
-        orders_qs = Order.objects.filter(created_at__gte=since)
 
+        orders_qs = Order.objects.filter(created_at__gte=since)
         orders_total = order_items_qs.aggregate(total=Sum(_money_expression('unit_price')))['total']
         trend = (
             order_items_qs
@@ -213,8 +204,8 @@ class OrdersReportView(AdminStaffOnlyMixin):
             .annotate(count=Count('id'))
             .order_by('-count')
         )
-        status_labels = dict(Order.STATUS_CHOICES)
 
+        status_labels = dict(Order.STATUS_CHOICES)
         payload = {
             'range': range_value,
             'summary': {
@@ -239,4 +230,5 @@ class OrdersReportView(AdminStaffOnlyMixin):
                 many=True,
             ).data,
         }
+
         return Response(payload)
